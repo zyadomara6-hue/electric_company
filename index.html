@@ -16,17 +16,14 @@
     <meta property="og:description" content="حلول كهربائية متكاملة للمنازل والشركات والمصانع بأعلى معايير الجودة والأمان.">
     <meta property="og:type" content="website">
     <meta property="og:locale" content="ar_EG">
+    <meta property="og:image" content="images/project-1.jpg">
 
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-
     <link rel="preconnect" href="https://fonts.googleapis.com">
-
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-
     <link rel="stylesheet" href="style.css">
-
     <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css">
 
 </head>
@@ -38,7 +35,7 @@
     <nav class="navbar">
 
         <div class="logo">
-            <a href="#home" class="brand brand--nav">
+            <a href="index.html" class="brand brand--nav">
                 <span class="brand-mark" aria-hidden="true">
                     <span class="brand-mark__bolt"></span>
                 </span>
@@ -49,19 +46,11 @@
             </a>
         </div>
 
-    
         <ul class="nav-links">
-
-            <li><a href="#home" data-i18n="nav_home">الرئيسية</a></li>
-
-            <li><a href="#about" data-i18n="nav_about">من نحن</a></li>
-
-            <li><a href="#services" data-i18n="nav_services">الخدمات</a></li>
-
-            <li><a href="#projects" data-i18n="nav_projects">المشاريع</a></li>
-
-            <li><a href="#contact" data-i18n="nav_contact">تواصل معنا</a></li>
-
+            <li><a href="index.html" class="active" data-i18n="nav_home">الرئيسية</a></li>
+            <li><a href="services.html" data-i18n="nav_services">الخدمات</a></li>
+            <li><a href="projects.html" data-i18n="nav_projects">المشاريع</a></li>
+            <li><a href="contact.html" data-i18n="nav_contact">تواصل معنا</a></li>
         </ul>
 
         <div class="language">
@@ -81,8 +70,41 @@
 </header>
 
 <!-- Hero -->
-
 <section class="hero" id="home">
+
+    <!-- Hanging realistic Edison pendant lamp -->
+    <div class="lamp-scene" aria-hidden="true">
+        <div class="lamp-glow"></div>
+        <div class="lamp-cord">
+            <div class="lamp-cord__wire"></div>
+            <div class="lamp-cord__sleeve"></div>
+        </div>
+        <div class="lamp-canopy"></div>
+        <div class="lamp-cable"></div>
+        <div class="lamp-base">
+            <span class="lamp-base__ridge"></span>
+            <span class="lamp-base__ridge"></span>
+            <span class="lamp-base__ridge"></span>
+        </div>
+        <div class="lamp-base--socket"></div>
+        <div class="lamp-bulb">
+            <div class="lamp-glass"></div>
+            <div class="lamp-filament">
+                <span class="lamp-filament__stem"></span>
+                <span class="lamp-filament__rod lamp-filament__rod--left"></span>
+                <span class="lamp-filament__rod lamp-filament__rod--right"></span>
+                <span class="lamp-filament__wire lamp-filament__wire--l1"></span>
+                <span class="lamp-filament__wire lamp-filament__wire--l2"></span>
+                <span class="lamp-filament__wire lamp-filament__wire--r1"></span>
+                <span class="lamp-filament__wire lamp-filament__wire--r2"></span>
+                <span class="lamp-filament__arm"></span>
+                <span class="lamp-filament__coil"></span>
+            </div>
+            <div class="lamp-core"></div>
+            <div class="lamp-highlight"></div>
+            <div class="lamp-highlight lamp-highlight--small"></div>
+        </div>
+    </div>
 
     <div class="overlay"></div>
 
@@ -98,13 +120,13 @@
 
         <div class="hero-buttons">
 
-            <a href="#contact" class="btn-primary" data-i18n="hero_btn_contact">
+            <a href="contact.html" class="btn-primary" data-i18n="hero_btn_contact">
 
                 تواصل معنا
 
             </a>
 
-            <a href="#services" class="btn-secondary" data-i18n="hero_btn_services">
+            <a href="services.html" class="btn-secondary" data-i18n="hero_btn_services">
 
                 خدماتنا
 
@@ -117,7 +139,6 @@
 </section>
 
 <!-- About -->
-
 <section class="about" id="about" data-aos="fade-right">
 
     <div class="container">
@@ -145,415 +166,12 @@
 
             </p>
 
-        </div>
-
-    </div>
-
-</section>
-<!-- ==========================
-     Services Section
-========================== -->
-
-<section class="services" id="services" data-aos="fade-up">
-
-    <div class="container">
-
-        <div class="section-title">
-
-            <h2 data-i18n="services_title">خدماتنا</h2>
-
-            <p data-i18n="services_desc">
-                نقدم مجموعة متكاملة من الخدمات الكهربائية بأعلى معايير الجودة والأمان.
-            </p>
-
-        </div>
-
-        <div class="services-grid">
-
-            <!-- الكارت الأول -->
-
-            <div class="service-card">
-
-                <i class="fa-solid fa-bolt"></i>
-
-                <h3 data-i18n="service_1_title">تأسيس الكهرباء</h3>
-
-                <p data-i18n="service_1_desc">
-                    تنفيذ جميع أعمال التأسيس للمنازل والفلل والعمارات والمصانع.
-                </p>
-
-            </div>
-
-            <!-- الكارت الثاني -->
-
-            <div class="service-card">
-
-                <i class="fa-solid fa-plug"></i>
-
-                <h3 data-i18n="service_2_title">لوحات الكهرباء</h3>
-
-                <p data-i18n="service_2_desc">
-                    تركيب وصيانة جميع أنواع اللوحات الكهربائية باحترافية.
-                </p>
-
-            </div>
-
-            <!-- الكارت الثالث -->
-
-            <div class="service-card">
-
-                <i class="fa-solid fa-screwdriver-wrench"></i>
-
-                <h3 data-i18n="service_3_title">الصيانة الكهربائية</h3>
-
-                <p data-i18n="service_3_desc">
-                    نقدم خدمات الصيانة وإصلاح الأعطال الكهربائية بسرعة وكفاءة لجميع المنشآت.
-                </p>
-
-            </div>
-
-            <!-- الكارت الرابع -->
-
-            <div class="service-card">
-
-                <i class="fa-solid fa-industry"></i>
-
-                <h3 data-i18n="service_4_title">كهرباء المصانع</h3>
-
-                <p data-i18n="service_4_desc">
-                    تنفيذ وصيانة الأنظمة الكهربائية للمصانع والمنشآت الصناعية.
-                </p>
-
-            </div>
-
-            <!-- الكارت الخامس -->
-
-            <div class="service-card">
-
-                <i class="fa-solid fa-house"></i>
-
-                <h3 data-i18n="service_5_title">كهرباء المنازل</h3>
-
-                <p data-i18n="service_5_desc">
-                    تأسيس وصيانة جميع أعمال الكهرباء للمنازل والشقق والفلل.
-                </p>
-
-            </div>
-
-            <!-- الكارت السادس -->
-
-            <div class="service-card">
-
-                <i class="fa-solid fa-id-card"></i>
-
-                <h3 data-i18n="service_6_title">عدادات الكهرباء</h3>
-
-                <p data-i18n="service_6_desc">
-                    تركيب وصيانة عدادات الكهرباء مسبقة الدفع والعدادات الذكية.
-                </p>
-
-            </div>
-
-            <!-- الكارت السابع -->
-
-            <div class="service-card">
-
-                <i class="fa-solid fa-helmet-safety"></i>
-
-                <h3 data-i18n="service_7_title">السلامة والصحة المهنية</h3>
-
-                <p data-i18n="service_7_desc">
-                    تطبيق معايير السلامة المهنية وحماية العاملين أثناء تنفيذ الأعمال.
-                </p>
-
-            </div>
-
-            <!-- الكارت الثامن -->
-
-            <div class="service-card">
-
-                <i class="fa-solid fa-cart-shopping"></i>
-
-                <h3 data-i18n="service_8_title">توريد مستلزمات الكهرباء</h3>
-
-                <p data-i18n="service_8_desc">
-                    توفير جميع الخامات والمستلزمات الكهربائية بأفضل جودة من السوق.
-                </p>
-
+            <div class="about-buttons">
+                <a href="services.html" class="btn-primary" data-i18n="about_btn_services">خدماتنا</a>
+                <a href="contact.html" class="btn-secondary" data-i18n="about_btn_contact">تواصل معنا</a>
             </div>
 
         </div>
-
-    </div>
-
-</section>
-
-
-<!-- ==========================
-     Projects Section
-========================== -->
-
-<section class="projects" id="projects" data-aos="fade-up">
-
-    <div class="container">
-
-        <div class="section-title">
-
-            <h2 data-i18n="projects_title">مشاريعنا</h2>
-
-            <p data-i18n="projects_desc">
-                بعض من الأعمال التي قمنا بتنفيذها باحترافية وجودة عالية.
-            </p>
-
-        </div>
-
-        <div class="projects-grid">
-
-            <div class="project-card">
-
-                <div class="project-image">
-                    <img src="images/project-1.jpg" alt="تأسيس كهرباء فيلا" loading="lazy">
-                </div>
-
-                <div class="project-content">
-
-                    <h3 data-i18n="project_1_title">تأسيس كهرباء فيلا</h3>
-
-                    <p data-i18n="project_1_desc">
-                        تنفيذ جميع أعمال الكهرباء الخاصة بالفيلا بأعلى معايير الجودة.
-                    </p>
-
-                </div>
-
-            </div>
-
-            <div class="project-card">
-
-                <div class="project-image">
-                    <img src="images/project-2.png" alt="لوحة مكثفات" loading="lazy">
-                </div>
-
-                <div class="project-content">
-
-                    <h3 data-i18n="project_2_title">لوحة كهرباء مصنع</h3>
-
-                    <p data-i18n="project_2_desc">
-                        تركيب لوحة كهربائية كاملة مع جميع وسائل الحماية.
-                    </p>
-
-                </div>
-
-            </div>
-
-            <div class="project-card">
-
-                <div class="project-image">
-                    <img src="images/project-3.png" alt="عدادات الكهرباء" loading="lazy">
-                </div>
-
-                <div class="project-content">
-
-                    <h3 data-i18n="project_3_title">عدادات الكهرباء</h3>
-
-                    <p data-i18n="project_3_desc">
-                        تركيب وصيانة العدادات مسبقة الدفع والعدادات الذكية.
-                    </p>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</section>
-
-<!-- ==========================
-     Why Choose Us
-========================== -->
-
-<section class="why-us" data-aos="zoom-in">
-
-    <div class="container">
-
-        <div class="section-title">
-
-            <h2 data-i18n="why_title">لماذا تختار مؤسسة عمارة؟</h2>
-
-        </div>
-
-        <div class="why-grid">
-
-            <div class="why-card">
-
-                <i class="fa-solid fa-award"></i>
-
-                <h3 data-i18n="why_1_title">خبرة أكثر من 20 عامًا</h3>
-
-                <p data-i18n="why_1_desc">
-                    خبرة طويلة في جميع أعمال الكهرباء والمقاولات.
-                </p>
-
-            </div>
-
-            <div class="why-card">
-
-                <i class="fa-solid fa-shield-halved"></i>
-
-                <h3 data-i18n="why_2_title">جودة وأمان</h3>
-
-                <p data-i18n="why_2_desc">
-                    نلتزم بأعلى معايير الجودة والسلامة في جميع الأعمال.
-                </p>
-
-            </div>
-
-            <div class="why-card">
-
-                <i class="fa-solid fa-clock"></i>
-
-                <h3 data-i18n="why_3_title">الالتزام بالمواعيد</h3>
-
-                <p data-i18n="why_3_desc">
-                    تنفيذ المشروعات في الوقت المحدد دون تأخير.
-                </p>
-
-            </div>
-
-            <div class="why-card">
-
-                <i class="fa-solid fa-headset"></i>
-
-                <h3 data-i18n="why_4_title">دعم مستمر</h3>
-
-                <p data-i18n="why_4_desc">
-                    خدمة عملاء ومتابعة بعد تنفيذ جميع الأعمال.
-                </p>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</section>
-<!-- ==========================
-     Contact Section
-========================== -->
-
-<section class="contact" id="contact" data-aos="fade-left">
-
-    <div class="container">
-
-        <div class="section-title">
-
-            <h2 data-i18n="contact_title">تواصل معنا</h2>
-
-            <p data-i18n="contact_desc">
-                يسعدنا الرد على جميع استفساراتكم في أي وقت.
-            </p>
-
-        </div>
-
-        <div class="contact-grid">
-
-            <!-- Phone -->
-
-            <a href="tel:01033442338" class="contact-card">
-
-                <i class="fa-solid fa-phone"></i>
-
-                <h3 data-i18n="contact_phone">اتصل بنا</h3>
-
-                <p>01033442338</p>
-
-            </a>
-
-            <!-- WhatsApp -->
-
-            <a href="https://wa.me/201033442338"
-               target="_blank"
-               class="contact-card">
-
-                <i class="fa-brands fa-whatsapp"></i>
-
-                <h3 data-i18n="contact_whatsapp">واتساب</h3>
-
-                <p data-i18n="contact_whatsapp_desc">تواصل معنا مباشرة</p>
-
-            </a>
-
-            <!-- Facebook -->
-
-            <a href="https://facebook.com"
-               target="_blank"
-               class="contact-card">
-
-                <i class="fa-brands fa-facebook"></i>
-
-                <h3 data-i18n="contact_facebook">فيسبوك</h3>
-
-                <p data-i18n="contact_facebook_desc">تواصل معنا عبر صفحتنا الرسمية.</p>
-
-            </a>
-
-        </div>
-
-        <form class="whatsapp-form" id="whatsappForm">
-
-            <h3 data-i18n="form_title">اطلب خدمة عبر واتساب</h3>
-
-            <p class="form-subtitle" data-i18n="form_subtitle">
-                املأ البيانات وسيتم فتح واتساب برسالة جاهزة.
-            </p>
-
-            <div class="form-grid">
-
-                <div class="form-group">
-                    <label for="clientName" data-i18n="form_name">الاسم</label>
-                    <input type="text" id="clientName" name="name" required
-                           data-i18n-placeholder="form_name_ph"
-                           placeholder="اكتب اسمك">
-                </div>
-
-                <div class="form-group">
-                    <label for="clientPhone" data-i18n="form_phone">رقم التليفون</label>
-                    <input type="tel" id="clientPhone" name="phone" required
-                           data-i18n-placeholder="form_phone_ph"
-                           placeholder="01xxxxxxxxx">
-                </div>
-
-                <div class="form-group form-group-full">
-                    <label for="clientService" data-i18n="form_service">نوع الخدمة</label>
-                    <select id="clientService" name="service" required>
-                        <option value="" data-i18n="form_service_placeholder">اختر الخدمة</option>
-                        <option value="تأسيس الكهرباء" data-i18n="form_opt_1">تأسيس الكهرباء</option>
-                        <option value="لوحات الكهرباء" data-i18n="form_opt_2">لوحات الكهرباء</option>
-                        <option value="الصيانة الكهربائية" data-i18n="form_opt_3">الصيانة الكهربائية</option>
-                        <option value="كهرباء المصانع" data-i18n="form_opt_4">كهرباء المصانع</option>
-                        <option value="كهرباء المنازل" data-i18n="form_opt_5">كهرباء المنازل</option>
-                        <option value="عدادات الكهرباء" data-i18n="form_opt_6">عدادات الكهرباء</option>
-                        <option value="توريد مستلزمات" data-i18n="form_opt_7">توريد مستلزمات الكهرباء</option>
-                        <option value="استفسار عام" data-i18n="form_opt_8">استفسار عام</option>
-                    </select>
-                </div>
-
-                <div class="form-group form-group-full">
-                    <label for="clientMessage" data-i18n="form_message">تفاصيل الطلب</label>
-                    <textarea id="clientMessage" name="message" rows="4" required
-                              data-i18n-placeholder="form_message_ph"
-                              placeholder="اكتب تفاصيل المطلوب باختصار"></textarea>
-                </div>
-
-            </div>
-
-            <button type="submit" class="form-submit">
-                <i class="fa-brands fa-whatsapp"></i>
-                <span data-i18n="form_submit">إرسال عبر واتساب</span>
-            </button>
-
-        </form>
 
     </div>
 
@@ -616,11 +234,7 @@
 
             <hr>
 
-            <p class="copyright" data-i18n="copyright">
-
-                © 2026 جميع الحقوق محفوظة | مؤسسة عمارة للكهرباء والمقاولات
-
-            </p>
+            <p class="copyright" data-i18n="copyright"></p>
 
         </div>
 
@@ -641,14 +255,25 @@
 </a>
 
 <!-- ==========================
+     Video Modal
+========================== -->
+
+<div class="modal-overlay" id="videoModal">
+    <div class="modal-content">
+        <button class="modal-close" id="modalClose" aria-label="إغلاق">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+        <video id="modalVideo" controls playsinline></video>
+    </div>
+</div>
+
+<!-- ==========================
      Scripts
 ========================== -->
 
 <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
 
 <script src="main.js"></script>
-
-
 
 </body>
 

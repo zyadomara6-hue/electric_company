@@ -4,6 +4,21 @@ AOS.init({
 });
 
 /* ==========================
+   Hero Background Video
+========================== */
+
+const heroVideo = document.querySelector(".hero-video");
+
+if (heroVideo) {
+    heroVideo.play().catch(() => {});
+
+    // Replay the video whenever it ends (full-loop safety)
+    heroVideo.addEventListener("ended", () => {
+        heroVideo.play().catch(() => {});
+    });
+}
+
+/* ==========================
    Mobile Menu
 ========================== */
 
@@ -51,8 +66,12 @@ const translations = {
         hero_btn_contact: "تواصل معنا",
         hero_btn_services: "خدماتنا",
         about_title: "من نحن",
-        about_subtitle: "مؤسسة عمارة للكهرباء والمقاولات",
+about_subtitle: "مؤسسة عمارة للكهرباء والمقاولات",
         about_desc: "بخبرة تزيد عن 20 عامًا، نقدم جميع أعمال الكهرباء للمنازل والعمارات والمصانع والمنشآت التجارية، مع الالتزام بأعلى معايير الجودة والسلامة واستخدام أفضل الخامات لتنفيذ جميع المشروعات بكفاءة واحترافية.",
+        about_btn_services: "خدماتنا",
+        about_btn_contact: "تواصل معنا",
+        services_cta: "اطلب خدمتك الآن",
+        projects_cta: "ابدأ مشروعك معنا",
         about_placeholder: "صورة المؤسسة",
         brand_tag: "مقاولات كهربائية",
         brand_tag_full: "للكهرباء والمقاولات",
@@ -125,9 +144,9 @@ const translations = {
         form_msg_details: "التفاصيل",
         footer_title: "مؤسسة عمارة للكهرباء والمقاولات",
         footer_desc: "نقدم حلولاً كهربائية متكاملة للمنازل والشركات والمصانع بأعلى معايير الجودة والأمان.",
-        footer_whatsapp: "واتساب",
+footer_whatsapp: "واتساب",
         footer_facebook: "فيسبوك",
-        copyright: "© 2026 جميع الحقوق محفوظة | مؤسسة عمارة للكهرباء والمقاولات",
+        copyright: "© جميع الحقوق محفوظة | مؤسسة عمارة للكهرباء والمقاولات",
         lang_btn: "AR | EN"
     },
     en: {
@@ -142,7 +161,11 @@ const translations = {
         hero_btn_services: "Our Services",
         about_title: "About Us",
         about_subtitle: "Omara Electrical & Contracting",
-        about_desc: "With over 20 years of experience, we handle all electrical work for homes, buildings, factories, and commercial facilities, using high-quality materials and professional standards.",
+about_desc: "With over 20 years of experience, we handle all electrical work for homes, buildings, factories, and commercial facilities, using high-quality materials and professional standards.",
+        about_btn_services: "Our Services",
+        about_btn_contact: "Contact Us",
+        services_cta: "Request your service now",
+        projects_cta: "Start your project with us",
         about_placeholder: "Company Photo",
         brand_tag: "Electrical Contracting",
         brand_tag_full: "Electrical Contracting",
@@ -215,9 +238,9 @@ const translations = {
         form_msg_details: "Details",
         footer_title: "Omara Electrical & Contracting",
         footer_desc: "Complete electrical solutions for homes, businesses, and factories with top quality and safety.",
-        footer_whatsapp: "WhatsApp",
+footer_whatsapp: "WhatsApp",
         footer_facebook: "Facebook",
-        copyright: "© 2026 All Rights Reserved | Omara Electrical & Contracting",
+        copyright: "© All Rights Reserved | Omara Electrical & Contracting",
         lang_btn: "EN | AR"
     }
 };
@@ -247,20 +270,33 @@ function setLanguage(lang) {
         }
     });
 
-    const serviceSelect = document.getElementById("clientService");
-    if (serviceSelect) {
-        Array.from(serviceSelect.options).forEach((option, index) => {
-            if (index === 0) {
-                option.value = "";
-                return;
-            }
-            option.value = option.textContent;
-        });
-    }
-
-    const langBtn = document.getElementById("langToggle");
+const langBtn = document.getElementById("langToggle");
     if (langBtn) {
         langBtn.textContent = dict.lang_btn;
+    }
+
+    updateCopyright();
+}
+
+const SERVICE_NAMES = {
+    installation: { ar: "تأسيس الكهرباء", en: "Electrical Installation" },
+    panels: { ar: "لوحات الكهرباء", en: "Electrical Panels" },
+    maintenance: { ar: "الصيانة الكهربائية", en: "Electrical Maintenance" },
+    factory: { ar: "كهرباء المصانع", en: "Factory Electrical" },
+    home: { ar: "كهرباء المنازل", en: "Home Electrical" },
+    meters: { ar: "عدادات الكهرباء", en: "Electricity Meters" },
+    supplies: { ar: "توريد مستلزمات الكهرباء", en: "Electrical Supplies" },
+    general: { ar: "استفسار عام", en: "General Inquiry" }
+};
+
+function updateCopyright() {
+    const copyright = document.querySelector(".copyright");
+    if (copyright) {
+        const year = new Date().getFullYear();
+        const dict = translations[currentLang];
+        const base = dict.copyright.split("|")[0].trim();
+        const name = dict.copyright.split("|")[1] || dict.copyright;
+        copyright.textContent = `${base} ${year} | ${name.trim()}`;
     }
 }
 
@@ -271,6 +307,8 @@ if (langToggle) {
         setLanguage(currentLang === "ar" ? "en" : "ar");
     });
 }
+
+updateCopyright();
 
 /* ==========================
    WhatsApp Form
@@ -288,20 +326,72 @@ if (whatsappForm) {
         const service = document.getElementById("clientService").value;
         const message = document.getElementById("clientMessage").value.trim();
 
-        if (!name || !phone || !service || !message) {
+if (!name || !phone || !service || !message) {
             return;
         }
+
+        const serviceName = SERVICE_NAMES[service] ? SERVICE_NAMES[service][currentLang] : service;
 
         const text = [
             dict.form_msg_intro,
             "",
             `${dict.form_msg_name}: ${name}`,
             `${dict.form_msg_phone}: ${phone}`,
-            `${dict.form_msg_service}: ${service}`,
+            `${dict.form_msg_service}: ${serviceName}`,
             `${dict.form_msg_details}: ${message}`
         ].join("\n");
 
-        const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
+const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
         window.open(url, "_blank");
+    });
+}
+
+/* ==========================
+   Video Modal
+========================== */
+
+const videoModal = document.getElementById("videoModal");
+const modalVideo = document.getElementById("modalVideo");
+const modalClose = document.getElementById("modalClose");
+
+document.querySelectorAll(".project-card--media").forEach((card) => {
+    card.addEventListener("click", () => {
+        const videoSrc = card.getAttribute("data-video");
+        if (videoSrc && videoModal && modalVideo) {
+            modalVideo.src = videoSrc;
+            videoModal.classList.add("active");
+            document.body.style.overflow = "hidden";
+            modalVideo.play().catch(() => {});
+        }
+    });
+});
+
+function closeVideoModal() {
+    if (videoModal) {
+        videoModal.classList.remove("active");
+        if (modalVideo) {
+            modalVideo.pause();
+            modalVideo.removeAttribute("src");
+            modalVideo.load();
+        }
+        document.body.style.overflow = "";
+    }
+}
+
+if (modalClose) {
+    modalClose.addEventListener("click", closeVideoModal);
+}
+
+if (videoModal) {
+    videoModal.addEventListener("click", (e) => {
+        if (e.target === videoModal) {
+            closeVideoModal();
+        }
+    });
+
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+            closeVideoModal();
+        }
     });
 }
