@@ -1,18 +1,16 @@
-# TODO: تحويل الموقع لنظام متعدد الصفحات (4 صفحات)
+# TODO: Mobile Responsive Hamburger Menu
 
-## الخطوات
-- [x] 1. إنشاء خطة التحويل (4 صفحات)
-- [x] 2. إنشاء `index.html` جديد (الرئيسية = Hero + من نحن)
-- [x] 3. إنشاء `services.html` (الخدمات)
-- [x] 4. إنشاء `projects.html` (المشاريع)
-- [x] 5. إنشاء `contact.html` (تواصل معنا)
-- [x] 6. تعديل `style.css` (دعم الصفحات + فاصل أسفل الصفحة)
-- [x] 7. تعديل `main.js` (تمييز الصفحة النشطة في القائمة + إصلاح باج اللغة + سنة الحقوق)
-- [x] 8. مراجعة نهائية واختبار
+## Goals
+- Make the hamburger icon reliably visible on first load on phones.
+- Add a smooth slide-down animated mobile menu.
+- Add click-outside / Escape close and body scroll lock.
+- Keep the existing hamburger icon (fa-bars) — do NOT change it.
 
-## أعمال إضافية تم إنجازها
-- [x] إضافة favicon.svg
-- [x] إضافة `meta og:image` للصفحات
-- [x] إزالة السنة الثابتة وجعلها ديناميكية عبر `new Date().getFullYear()`
-- [x] إصلاح باج قائمة الخدمات في نموذج الواتساب (استخدام قيم ثابتة بدل النصوص القابلة للترجمة)
-- [x] إضافة أزرار CTA في صفحة الخدمات وفي قسم "من نحن"
+## Steps
+- [x] 1. style.css: force `.menu-toggle` visibility on mobile, add animation + backdrop styles
+- [x] 2. main.js: enhance mobile menu toggle logic (toggle, backdrop, outside/Escape close, scroll lock) — already present, verified
+- [x] 3. index.html: add mobile menu backdrop after `<nav>`
+- [x] 4. services.html: add mobile menu backdrop after `<nav>`
+- [x] 5. projects.html: add mobile menu backdrop after `<nav>`
+- [x] 6. contact.html: add mobile menu backdrop after `<nav>`
+- [x] 7. Verify on phone / device mode — confirmed all files consistent

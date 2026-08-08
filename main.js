@@ -24,16 +24,51 @@ if (heroVideo) {
 
 const menuToggle = document.querySelector(".menu-toggle");
 const navLinks = document.querySelector(".nav-links");
+const menuBackdrop = document.querySelector(".mobile-menu-backdrop");
+
+function closeMobileMenu() {
+    if (navLinks) navLinks.classList.remove("active");
+    if (menuBackdrop) menuBackdrop.classList.remove("active");
+    document.body.style.overflow = "";
+}
+
+function openMobileMenu() {
+    if (navLinks) navLinks.classList.add("active");
+    if (menuBackdrop) menuBackdrop.classList.add("active");
+    document.body.style.overflow = "hidden";
+}
 
 if (menuToggle && navLinks) {
     menuToggle.addEventListener("click", () => {
-        navLinks.classList.toggle("active");
+        const isOpen = navLinks.classList.contains("active");
+        if (isOpen) {
+            closeMobileMenu();
+        } else {
+            openMobileMenu();
+        }
     });
 
     navLinks.querySelectorAll("a").forEach((link) => {
-        link.addEventListener("click", () => {
-            navLinks.classList.remove("active");
-        });
+        link.addEventListener("click", closeMobileMenu);
+    });
+
+    // Close when tapping the backdrop
+    if (menuBackdrop) {
+        menuBackdrop.addEventListener("click", closeMobileMenu);
+    }
+
+    // Close when pressing Escape
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+            closeMobileMenu();
+        }
+    });
+
+    // Close when resizing to desktop
+    window.addEventListener("resize", () => {
+        if (window.innerWidth > 992) {
+            closeMobileMenu();
+        }
     });
 }
 

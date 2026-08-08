@@ -1312,6 +1312,29 @@ body{
 }
 
 /* ==========================
+   Mobile Menu Backdrop
+========================== */
+
+.mobile-menu-backdrop{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,.5);
+    backdrop-filter:blur(2px);
+    z-index:999;
+    opacity:0;
+    visibility:hidden;
+    transition:opacity .3s ease, visibility .3s ease;
+}
+
+.mobile-menu-backdrop.active{
+    opacity:1;
+    visibility:visible;
+}
+
+/* ==========================
    Lamp / Dark Mode
 ========================== */
 
@@ -1494,6 +1517,18 @@ body.dark-mode .form-group textarea{
     }
     100% {
         background-position: 200% 0;
+    }
+}
+
+/* Mobile menu slide-down */
+@keyframes menuSlideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
 }
 
@@ -1952,15 +1987,34 @@ html{
         transform:scale(.85);
     }
 
-    .navbar{
+.navbar{
         height:70px;
         padding:0 18px;
         gap:10px;
+        flex-wrap:nowrap;
+    }
+
+    .logo{
+        min-width:0;
+        flex-shrink:1;
+        flex-basis:auto;
+    }
+
+    .brand{
+        min-width:0;
+    }
+
+    .brand-copy{
+        min-width:0;
+        flex-shrink:1;
     }
 
     .brand-name{
         font-size:18px;
         letter-spacing:0.1em;
+        white-space:nowrap;
+        overflow:hidden;
+        text-overflow:ellipsis;
     }
 
     .brand-tag{
@@ -1970,6 +2024,7 @@ html{
     .brand-mark{
         width:36px;
         height:36px;
+        flex-shrink:0;
     }
 
     .brand-mark__bolt{
@@ -1977,13 +2032,21 @@ html{
         height:15px;
     }
 
-    .menu-toggle{
+.menu-toggle{
         display:flex;
         align-items:center;
         justify-content:center;
         font-size:26px;
         color:#FFD700;
         flex-shrink:0;
+        width:48px;
+        height:48px;
+        border-radius:10px;
+        transition:background .3s ease, transform .3s ease;
+    }
+
+    .menu-toggle:active{
+        transform:scale(.92);
     }
 
     .nav-links{
@@ -1991,6 +2054,7 @@ html{
         position:absolute;
         top:100%;
         right:0;
+        left:0;
         width:100%;
         background:#0B1F3A;
         flex-direction:column;
@@ -1998,10 +2062,12 @@ html{
         padding:18px 0;
         gap:4px;
         box-shadow:0 12px 28px rgba(0,0,0,.22);
+        transform-origin:top center;
     }
 
     .nav-links.active{
         display:flex;
+        animation:menuSlideDown .35s ease both;
     }
 
     .nav-links a{
@@ -2228,13 +2294,23 @@ html{
         display:none;
     }
 
-    .navbar{
+.navbar{
         padding:0 14px;
         gap:8px;
+        flex-wrap:nowrap;
+    }
+
+    .logo{
+        min-width:0;
+        flex-shrink:1;
     }
 
     .brand-name{
         font-size:16px;
+        letter-spacing:0.08em;
+        white-space:nowrap;
+        overflow:hidden;
+        text-overflow:ellipsis;
     }
 
     .brand-tag{
@@ -2244,6 +2320,13 @@ html{
     .brand-mark{
         width:34px;
         height:34px;
+        flex-shrink:0;
+    }
+
+    .language button{
+        padding:6px 8px;
+        font-size:12px;
+        flex-shrink:0;
     }
 
     .hero{
