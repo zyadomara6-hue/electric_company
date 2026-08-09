@@ -1,0 +1,12 @@
+# robots.txt — مؤسسة عمارة للكهرباء والمقاولات
+# يسمح لمحركات البحث بفهرسة الصفحات العامة ويمنع صفحات الإدارة
+
+User-agent: *
+Allow: /
+Disallow: /admin.html
+Disallow: /admin.js
+Disallow: /admin-style.css
+Disallow: /supabase-config.js
+Disallow: /backend.js
+
+Sitemap: https://zyadomara6-hue.github.io/electric_company/sitemap.xml
