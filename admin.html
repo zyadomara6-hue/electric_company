@@ -89,10 +89,19 @@
                 </div>
             </section>
 
-            <!-- ===== Leads Tab ===== -->
+<!-- ===== Leads Tab ===== -->
             <section id="tab-leads" class="admin-tab-panel">
                 <div class="admin-card">
-                    <h2 class="admin-card__title"><i class="fa-solid fa-envelope"></i> رسائل العملاء الواردة</h2>
+                    <h2 class="admin-card__title"><i class="fa-solid fa-envelope"></i> سجل تواصل العملاء</h2>
+
+                    <div class="leads-filter" id="leadsFilter">
+                        <button class="leads-filter__btn active" data-filter="all"><i class="fa-solid fa-list"></i> الكل</button>
+                        <button class="leads-filter__btn" data-filter="form"><i class="fa-solid fa-file-lines"></i> طلبات الفورم</button>
+                        <button class="leads-filter__btn" data-filter="whatsapp"><i class="fa-brands fa-whatsapp"></i> تواصل واتساب</button>
+                    </div>
+
+                    <div class="leads-summary" id="leadsSummary"></div>
+
                     <div id="leadsList" class="leads-list">
                         <p class="empty">جاري التحميل...</p>
                     </div>

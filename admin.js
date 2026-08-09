@@ -267,25 +267,112 @@ result = await sb().from("projects").update({
         }
     });
 
-    // ---------- Leads ----------
+// ---------- Leads ----------
+    let allLeads = [];
+    let currentLeadFilter = "all";
+
+    // تسمية نصوص الخدمة والدول — للعرض فقط
+    const SERVICE_LABELS = {
+        installation: { ar: "تأسيس الكهرباء", en: "Electrical Installation" },
+        panels: { ar: "لوحات الكهرباء", en: "Electrical Panels" },
+        maintenance: { ar: "الصيانة الكهربائية", en: "Electrical Maintenance" },
+        factory: { ar: "كهرباء المصانع", en: "Factory Electrical" },
+        home: { ar: "كهرباء المنازل", en: "Home Electrical" },
+        meters: { ar: "عدادات الكهرباء", en: "Electricity Meters" },
+        supplies: { ar: "توريد مستلزمات الكهرباء", en: "Electrical Supplies" },
+        general: { ar: "استفسار عام", en: "General Inquiry" }
+    };
+
+    function serviceLabel(service) {
+        if (!service) return "عام";
+        return (SERVICE_LABELS[service] && SERVICE_LABELS[service].ar) || service;
+    }
+
+    function typeLabel(type) {
+        return type === "whatsapp"
+            ? { tag: "تواصل واتساب", cls: "lead-type--whatsapp", icon: "fa-brands fa-whatsapp" }
+            : { tag: "طلب فورم", cls: "lead-type--form", icon: "fa-solid fa-file-lines" };
+    }
+
+    function pageSourceLabel(src) {
+        if (!src) return "غير معروف";
+        const names = {
+            "index.html": "الرئيسية",
+            "services.html": "الخدمات",
+            "projects.html": "المشاريع",
+            "contact.html": "تواصل معنا"
+        };
+        return names[src] ? `${names[src]} (${src})` : src;
+    }
+
     async function loadLeads() {
         const { data, error } = await sb().from("leads").select("*").order("created_at", { ascending: false });
         if (error) { leadsList.innerHTML = `<p class="empty">خطأ: ${error.message}</p>`; return; }
-        leadsCount.textContent = data.length;
-        if (!data.length) { leadsList.innerHTML = `<p class="empty">لا توجد رسائل بعد.</p>`; return; }
-        leadsList.innerHTML = data.map((l) => `
+        allLeads = data || [];
+        leadsCount.textContent = allLeads.length;
+        renderLeads();
+    }
+
+    function renderLeads() {
+        const summary = document.getElementById("leadsSummary");
+        const total = allLeads.length;
+        const formCount = allLeads.filter((l) => l.contact_type !== "whatsapp").length;
+        const waCount = allLeads.filter((l) => l.contact_type === "whatsapp").length;
+        if (summary) {
+            summary.innerHTML = `
+                <span class="leads-summary__item leads-summary__item--total"><i class="fa-solid fa-inbox"></i> الإجمالي: ${total}</span>
+                <span class="leads-summary__item leads-summary__item--form"><i class="fa-solid fa-file-lines"></i> طلبات الفورم: ${formCount}</span>
+                <span class="leads-summary__item leads-summary__item--wa"><i class="fa-brands fa-whatsapp"></i> تواصل واتساب: ${waCount}</span>
+            `;
+        }
+
+        const filtered = currentLeadFilter === "all"
+            ? allLeads
+            : allLeads.filter((l) =>
+                currentLeadFilter === "whatsapp"
+                    ? l.contact_type === "whatsapp"
+                    : l.contact_type !== "whatsapp"
+              );
+
+        if (!filtered.length) {
+            leadsList.innerHTML = `<p class="empty">لا توجد سجلات في هذا القسم.</p>`;
+            return;
+        }
+
+        leadsList.innerHTML = filtered.map((l) => {
+            const type = typeLabel(l.contact_type);
+            return `
             <div class="lead-item">
                 <div class="lead-head">
-                    <strong>${escapeHtml(l.name)}</strong>
+                    <div class="lead-title">
+                        <span class="lead-type ${type.cls}"><i class="${type.icon}"></i> ${type.tag}</span>
+                        <strong>${escapeHtml(l.name || "عميل من الموقع")}</strong>
+                    </div>
                     <span class="lead-date">${new Date(l.created_at).toLocaleString("ar-EG")}</span>
                 </div>
                 <div class="lead-body">
-                    <p><i class="fa-solid fa-phone"></i> ${escapeHtml(l.phone)}</p>
-                    <p><i class="fa-solid fa-tag"></i> ${escapeHtml(l.service || "عام")}</p>
+                    ${l.phone ? `<p><i class="fa-solid fa-phone"></i> ${escapeHtml(l.phone)}</p>` : ""}
+                    ${l.service ? `<p><i class="fa-solid fa-tag"></i> ${escapeHtml(serviceLabel(l.service))}</p>` : ""}
+                    ${l.page_source ? `<p class="lead-source"><i class="fa-solid fa-location-crosshairs"></i> المصدر: ${escapeHtml(pageSourceLabel(l.page_source))}</p>` : ""}
+                    ${l.wa_link ? `<p class="lead-walink"><i class="fa-brands fa-whatsapp"></i> <a href="${escapeHtml(l.wa_link)}" target="_blank" rel="noopener">${escapeHtml(l.wa_link)}</a></p>` : ""}
                     ${l.message ? `<p class="lead-msg">${escapeHtml(l.message)}</p>` : ""}
                 </div>
             </div>
-        `).join("");
+        `;
+        }).join("");
+    }
+
+    // ---------- Leads filter ----------
+    const leadsFilter = document.getElementById("leadsFilter");
+    if (leadsFilter) {
+        leadsFilter.addEventListener("click", (e) => {
+            const btn = e.target.closest(".leads-filter__btn");
+            if (!btn) return;
+            leadsFilter.querySelectorAll(".leads-filter__btn").forEach((b) => b.classList.remove("active"));
+            btn.classList.add("active");
+            currentLeadFilter = btn.getAttribute("data-filter");
+            renderLeads();
+        });
     }
 
     function escapeHtml(str) {

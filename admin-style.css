@@ -146,11 +146,48 @@ body {
 
 /* ---------- Leads ---------- */
 .leads-list { display: flex; flex-direction: column; gap: 12px; }
+
+/* Filter bar */
+.leads-filter { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+.leads-filter__btn {
+    background: #fff; border: 1px solid #e5e7eb; border-radius: 8px;
+    padding: 8px 14px; cursor: pointer; font-family: inherit;
+    font-size: .85rem; font-weight: 600; color: #6b7280; transition: .2s;
+    display: flex; align-items: center; gap: 6px;
+}
+.leads-filter__btn:hover { border-color: #f59e0b; color: #111827; }
+.leads-filter__btn.active { background: #f59e0b; color: #111827; border-color: #f59e0b; }
+
+/* Summary chips */
+.leads-summary { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+.leads-summary__item {
+    border-radius: 999px; padding: 5px 14px; font-size: .8rem; font-weight: 700;
+    display: flex; align-items: center; gap: 6px;
+}
+.leads-summary__item--total { background: #eef2ff; color: #4338ca; }
+.leads-summary__item--form { background: #ecfdf5; color: #047857; }
+.leads-summary__item--wa { background: #ecfdf3; color: #128c4a; }
+
 .lead-item { border: 1px solid #e5e7eb; border-radius: 10px; padding: 14px; background: #fafafa; }
-.lead-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.lead-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; gap: 10px; flex-wrap: wrap; }
+.lead-title { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .lead-head strong { color: #111827; }
 .lead-date { color: #9ca3af; font-size: .75rem; }
+
+/* Contact type badge */
+.lead-type {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: .72rem; font-weight: 700; padding: 3px 10px;
+    border-radius: 999px;
+}
+.lead-type--form { background: #dbeafe; color: #1d4ed8; }
+.lead-type--whatsapp { background: #d1fae5; color: #065f46; }
+
 .lead-body p { color: #374151; font-size: .9rem; margin-bottom: 4px; }
+.lead-body .lead-source { color: #6b7280; font-size: .82rem; }
+.lead-body .lead-walink { font-size: .82rem; word-break: break-all; }
+.lead-body .lead-walink a { color: #128c4a; text-decoration: none; }
+.lead-body .lead-walink a:hover { text-decoration: underline; }
 .lead-body .lead-msg { background: #fff; border-radius: 8px; padding: 10px; margin-top: 8px; border-right: 3px solid #f59e0b; }
 .empty { color: #9ca3af; text-align: center; padding: 20px; }
 

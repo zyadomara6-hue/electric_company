@@ -404,8 +404,16 @@ const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
         // === Backend: save lead to Supabase (مع مهلة قصوى حتى لا يعلق) ===
         // الترتيب: حفظ البيانات ← فتح واتساب
         // ولو Supabase فشل أو أبطأ، واتساب يفضل يشتغل دائمًا.
-        const saveLeadPromise = (window.OmaraBackend && window.appSupabase)
-            ? window.OmaraBackend.saveLead({ name, phone, service, message })
+const saveLeadPromise = (window.OmaraBackend && window.appSupabase)
+            ? window.OmaraBackend.saveLead({
+                name,
+                phone,
+                service,
+                message,
+                contact_type: "form",
+                page_source: window.location.pathname.split("/").pop() || "index.html",
+                wa_link: url
+            })
             : Promise.resolve({ ok: false, error: "backend not configured" });
 
         const TIMEOUT_MS = 2500;
@@ -422,6 +430,44 @@ const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
             });
     });
 }
+
+/* ==========================
+   WhatsApp Click Tracking (Global)
+   ===========================
+   يسجّل أي ضغطة على زر/رابط واتساب (wa.me) في أي صفحة بالموقع
+   بدون ما يمنع فتح واتساب أبدًا (Fire-and-forget).
+   يتم تسجيل: نوع التواصل = WhatsApp + الصفحة + التاريخ + الرابط.
+   لا يقرأ ولا يحفظ محتوى المحادثة داخل واتساب.
+========================== */
+
+function setupWhatsAppTracking() {
+    if (!document.body) return;
+
+    document.addEventListener("click", (e) => {
+        // ابحث عن أقرب رابط واتساب من العنصر المضغوط
+        const anchor = e.target.closest('a[href*="wa.me"]');
+        if (!anchor) return;
+
+        const href = anchor.getAttribute("href") || "";
+        // استخراج رقم واتساب من الرابط إن توفر
+        let waLink = href;
+        const match = href.match(/wa\.me\/(\d+)/);
+        const numberUsed = match ? match[1] : null;
+
+        // خدمة قابلة للتحديد: يمكن وضعها في data-service على الرابط
+        const service = anchor.getAttribute("data-service") || null;
+
+        // Fire-and-forget: نسجل الحدث ولا ننتظر، واتساب يفتح فورًا
+        if (window.OmaraBackend && window.OmaraBackend.trackWhatsAppClick) {
+            window.OmaraBackend.trackWhatsAppClick({ service, wa_link: waLink });
+        }
+
+        // لا preventDefault ولا نمنع فتح واتساب مطلقًا
+        // (نكتفي بتسجيل الحدث فقط)
+    });
+}
+
+setupWhatsAppTracking();
 
 /* ==========================
    Video Modal
