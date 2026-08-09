@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم | مؤسسة عمارة</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="admin-style.css">
+</head>
+<body>
+
+    <!-- ===== Login Screen ===== -->
+    <div id="loginScreen" class="login-screen">
+        <div class="login-box">
+            <div class="brand brand--lg">
+                <span class="brand-mark"><span class="brand-mark__bolt"></span></span>
+                <span class="brand-name">OMARA</span>
+            </div>
+            <h1>لوحة التحكم</h1>
+            <p class="login-sub">سجّل الدخول للوصول إلى الإدارة</p>
+            <form id="loginForm">
+                <input type="email" id="loginEmail" placeholder="البريد الإلكتروني" required>
+                <input type="password" id="loginPassword" placeholder="كلمة المرور" required>
+                <button type="submit" class="btn-primary">تسجيل الدخول</button>
+                <p id="loginError" class="login-error"></p>
+            </form>
+            <a href="index.html" class="back-link"><i class="fa-solid fa-arrow-right"></i> العودة للموقع</a>
+        </div>
+    </div>
+
+    <!-- ===== Admin Panel ===== -->
+    <div id="adminPanel" class="admin-panel" style="display:none;">
+
+        <header class="admin-header">
+            <div class="admin-header__inner">
+                <h1><i class="fa-solid fa-bolt"></i> لوحة تحكم عمارة</h1>
+                <div class="admin-header__actions">
+                    <a href="index.html" class="admin-btn admin-btn--ghost"><i class="fa-solid fa-eye"></i> عرض الموقع</a>
+                    <button id="logoutBtn" class="admin-btn admin-btn--danger"><i class="fa-solid fa-right-from-bracket"></i> خروج</button>
+                </div>
+            </div>
+        </header>
+
+        <nav class="admin-tabs">
+            <button class="admin-tab active" data-tab="projects"><i class="fa-solid fa-diagram-project"></i> المشاريع</button>
+            <button class="admin-tab" data-tab="leads"><i class="fa-solid fa-envelope"></i> رسائل العملاء <span id="leadsCount" class="badge">0</span></button>
+        </nav>
+
+        <main class="admin-main">
+
+            <!-- ===== Projects Tab ===== -->
+            <section id="tab-projects" class="admin-tab-panel active">
+                <div class="admin-card">
+                    <h2 class="admin-card__title"><i class="fa-solid fa-plus"></i> إضافة مشروع جديد</h2>
+                    <form id="projectForm" class="project-form">
+<div class="form-row">
+                            <input type="text" id="projTitle" placeholder="اسم المشروع (عربي)" required>
+                            <input type="text" id="projTitleEn" placeholder="اسم المشروع (إنجليزي)">
+                        </div>
+                        <div class="form-row">
+                            <input type="text" id="projCategory" placeholder="التصنيف / نوع المشروع (مثال: تأسيس، لوحات، فيديو)">
+                        </div>
+                        <textarea id="projDesc" rows="2" placeholder="وصف المشروع (عربي)"></textarea>
+                        <textarea id="projDescEn" rows="2" placeholder="وصف المشروع (إنجليزي)"></textarea>
+                        <div class="form-row">
+                            <input type="text" id="projLink" placeholder="رابط صورة أو فيديو (اختياري)">
+                            <input type="number" id="projSort" placeholder="الترتيب (0 = الأول)" value="0">
+                        </div>
+<div class="form-row">
+                            <input type="file" id="projImage" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp,video/mp4,video/webm">
+                            <button type="submit" class="btn-primary" id="projSubmit"><i class="fa-solid fa-save"></i> حفظ المشروع</button>
+                        </div>
+                        <p class="file-hint">📎 الصور: JPG / JPEG / PNG / WEBP (حتى 5MB) — الفيديو: MP4 / WEBM (حتى 50MB)</p>
+                        <div class="form-row">
+                            <button type="button" id="projCancelEdit" class="admin-btn admin-btn--danger" style="display:none;" onclick="cancelEdit()"><i class="fa-solid fa-xmark"></i> إلغاء التعديل</button>
+                        </div>
+                        <p id="projMsg" class="form-msg"></p>
+                    </form>
+                </div>
+
+                <div class="admin-card">
+                    <h2 class="admin-card__title"><i class="fa-solid fa-list"></i> المشاريع الحالية</h2>
+                    <div id="projectsList" class="projects-admin-list">
+                        <p class="empty">جاري التحميل...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===== Leads Tab ===== -->
+            <section id="tab-leads" class="admin-tab-panel">
+                <div class="admin-card">
+                    <h2 class="admin-card__title"><i class="fa-solid fa-envelope"></i> رسائل العملاء الواردة</h2>
+                    <div id="leadsList" class="leads-list">
+                        <p class="empty">جاري التحميل...</p>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+    </div>
+
+<!-- ===== Scripts ===== -->
+    <!-- UMD build: ينشئ window.supabase كـ global موثوق -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="supabase-config.js"></script>
+    <script src="admin.js"></script>
+</body>
+</html>

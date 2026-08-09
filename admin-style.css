@@ -1,0 +1,162 @@
+/* ============================================================
+   Admin Panel Styles
+   ============================================================ */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: "Cairo", sans-serif;
+    background: #f4f6f9;
+    color: #1f2937;
+    min-height: 100vh;
+}
+
+/* ---------- Brand ---------- */
+.brand { display: flex; align-items: center; gap: 10px; justify-content: center; }
+.brand-mark {
+    width: 42px; height: 42px; border-radius: 12px;
+    background: linear-gradient(135deg, #f59e0b, #fbbf24);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 12px rgba(245,158,11,.4);
+}
+.brand-mark__bolt {
+    width: 10px; height: 22px; background: #fff; border-radius: 3px;
+    position: relative; transform: rotate(0deg);
+}
+.brand-mark__bolt::before {
+    content: ""; position: absolute; top: -4px; left: 50%; transform: translateX(-50%);
+    border-left: 9px solid transparent; border-right: 9px solid transparent; border-bottom: 8px solid #fff;
+}
+.brand-mark__bolt::after {
+    content: ""; position: absolute; bottom: -4px; left: 50%; transform: translateX(-50%);
+    border-left: 9px solid transparent; border-right: 9px solid transparent; border-top: 8px solid #fff;
+}
+.brand-name { font-weight: 800; font-size: 1.4rem; letter-spacing: 2px; color: #111827; }
+
+/* ---------- Login ---------- */
+.login-screen {
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, #0f172a, #1e293b);
+    padding: 20px;
+}
+.login-box {
+    background: #fff; border-radius: 20px; padding: 40px 34px;
+    width: 100%; max-width: 400px; text-align: center;
+    box-shadow: 0 20px 60px rgba(0,0,0,.3);
+}
+.login-box h1 { margin-top: 14px; font-size: 1.5rem; color: #111827; }
+.login-sub { color: #6b7280; margin: 6px 0 24px; font-size: .9rem; }
+.login-box form { display: flex; flex-direction: column; gap: 12px; }
+.login-box input {
+    padding: 13px 15px; border: 1px solid #e5e7eb; border-radius: 10px;
+    font-size: .95rem; font-family: inherit; outline: none;
+}
+.login-box input:focus { border-color: #f59e0b; box-shadow: 0 0 0 3px rgba(245,158,11,.15); }
+.login-error { color: #dc2626; font-size: .85rem; min-height: 20px; }
+.back-link { display: inline-block; margin-top: 18px; color: #6b7280; font-size: .85rem; text-decoration: none; }
+
+/* ---------- Buttons ---------- */
+.btn-primary {
+    background: linear-gradient(135deg, #f59e0b, #fbbf24); color: #111827;
+    border: none; padding: 13px; border-radius: 10px; font-weight: 700; font-size: 1rem;
+    cursor: pointer; font-family: inherit; transition: .2s;
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(245,158,11,.4); }
+
+.admin-btn {
+    border: none; padding: 9px 16px; border-radius: 8px; cursor: pointer;
+    font-family: inherit; font-size: .85rem; font-weight: 600; transition: .2s; text-decoration: none;
+}
+.admin-btn--ghost { background: #fff; color: #374151; border: 1px solid #e5e7eb; }
+.admin-btn--ghost:hover { background: #f9fafb; }
+.admin-btn--danger { background: #fee2e2; color: #dc2626; }
+.admin-btn--danger:hover { background: #fecaca; }
+
+/* ---------- Admin Panel ---------- */
+.admin-panel { min-height: 100vh; }
+.admin-header {
+    background: #0f172a; color: #fff; padding: 16px 24px;
+    position: sticky; top: 0; z-index: 10;
+}
+.admin-header__inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.admin-header h1 { font-size: 1.2rem; display: flex; align-items: center; gap: 10px; }
+.admin-header h1 i { color: #fbbf24; }
+.admin-header__actions { display: flex; gap: 10px; }
+
+.admin-tabs {
+    max-width: 1100px; margin: 0 auto; display: flex; gap: 8px; padding: 20px 16px 0;
+}
+.admin-tab {
+    background: #fff; border: 1px solid #e5e7eb; border-bottom: none;
+    padding: 12px 22px; border-radius: 10px 10px 0 0; cursor: pointer;
+    font-family: inherit; font-size: .95rem; font-weight: 600; color: #6b7280;
+    display: flex; align-items: center; gap: 8px;
+}
+.admin-tab.active { color: #111827; background: #f4f6f9; border-top: 3px solid #f59e0b; }
+.badge {
+    background: #f59e0b; color: #111827; border-radius: 999px;
+    font-size: .7rem; padding: 1px 8px; font-weight: 700;
+}
+
+.admin-main { max-width: 1100px; margin: 0 auto; padding: 0 16px 40px; }
+.admin-tab-panel { display: none; }
+.admin-tab-panel.active { display: block; }
+
+/* ---------- Cards ---------- */
+.admin-card {
+    background: #fff; border-radius: 14px; padding: 24px; margin-top: 16px;
+    box-shadow: 0 2px 10px rgba(0,0,0,.05);
+}
+.admin-card__title {
+    font-size: 1.05rem; margin-bottom: 18px; color: #111827;
+    display: flex; align-items: center; gap: 10px;
+}
+.admin-card__title i { color: #f59e0b; }
+
+.project-form { display: flex; flex-direction: column; gap: 12px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.project-form input, .project-form textarea {
+    padding: 12px 14px; border: 1px solid #e5e7eb; border-radius: 9px;
+    font-family: inherit; font-size: .9rem; outline: none; width: 100%;
+}
+.project-form input:focus, .project-form textarea:focus { border-color: #f59e0b; }
+.form-msg { font-size: .9rem; color: #059669; min-height: 20px; }
+.file-hint {
+    font-size: .82rem; color: #6b7280; background: #f9fafb;
+    border: 1px dashed #d1d5db; border-radius: 8px; padding: 8px 12px;
+    line-height: 1.6;
+}
+
+/* ---------- Project admin list ---------- */
+.projects-admin-list { display: flex; flex-direction: column; gap: 10px; }
+.project-admin-item {
+    display: flex; align-items: center; gap: 14px; padding: 12px;
+    border: 1px solid #e5e7eb; border-radius: 10px; background: #fafafa;
+}
+.project-admin-thumb { width: 60px; height: 45px; object-fit: cover; border-radius: 6px; background: #e5e7eb; }
+.project-admin-thumb--empty { display: flex; align-items: center; justify-content: center; color: #9ca3af; }
+.project-admin-info { flex: 1; display: flex; flex-direction: column; }
+.project-admin-info strong { color: #111827; }
+.project-admin-info span { color: #9ca3af; font-size: .8rem; }
+.project-admin-category {
+    align-self: flex-start; margin-top: 4px;
+    background: #f59e0b; color: #111827;
+    font-size: .72rem; font-weight: 700; padding: 2px 10px; border-radius: 999px;
+}
+.project-admin-actions { display: flex; gap: 8px; }
+
+/* ---------- Leads ---------- */
+.leads-list { display: flex; flex-direction: column; gap: 12px; }
+.lead-item { border: 1px solid #e5e7eb; border-radius: 10px; padding: 14px; background: #fafafa; }
+.lead-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.lead-head strong { color: #111827; }
+.lead-date { color: #9ca3af; font-size: .75rem; }
+.lead-body p { color: #374151; font-size: .9rem; margin-bottom: 4px; }
+.lead-body .lead-msg { background: #fff; border-radius: 8px; padding: 10px; margin-top: 8px; border-right: 3px solid #f59e0b; }
+.empty { color: #9ca3af; text-align: center; padding: 20px; }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 600px) {
+    .form-row { grid-template-columns: 1fr; }
+    .admin-header__inner { flex-direction: column; align-items: flex-start; }
+    .project-admin-item { flex-wrap: wrap; }
+}

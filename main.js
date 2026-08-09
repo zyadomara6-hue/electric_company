@@ -133,10 +133,17 @@ about_subtitle: "مؤسسة عمارة للكهرباء والمقاولات",
         project_placeholder: "صورة المشروع",
         project_1_title: "تأسيس كهرباء فيلا",
         project_1_desc: "تنفيذ جميع أعمال الكهرباء الخاصة بالفيلا بأعلى معايير الجودة.",
-        project_2_title: "لوحة كهرباء مصنع",
+project_2_title: "لوحة كهرباء مصنع",
         project_2_desc: "تركيب لوحة كهربائية كاملة مع جميع وسائل الحماية.",
         project_3_title: "عدادات الكهرباء",
         project_3_desc: "تركيب وصيانة العدادات مسبقة الدفع والعدادات الذكية.",
+        project_4_title: "مشروع 4",
+        project_4_desc: "ضع وصف المشروع هنا، ويمكن إرفاق صورة أو فيديو.",
+        project_5_title: "مشروع 5",
+        project_5_desc: "ضع وصف المشروع هنا، ويمكن إرفاق صورة أو فيديو.",
+        project_6_title: "مشروع 6",
+        project_6_desc: "ضع وصف المشروع هنا، ويمكن إرفاق صورة أو فيديو.",
+        video_label: "فيديو",
         why_title: "لماذا تختار مؤسسة عمارة؟",
         why_1_title: "خبرة أكثر من 20 عامًا",
         why_1_desc: "خبرة طويلة في جميع أعمال الكهرباء والمقاولات.",
@@ -227,10 +234,17 @@ about_desc: "With over 20 years of experience, we handle all electrical work for
         project_placeholder: "Project Photo",
         project_1_title: "Villa Electrical Setup",
         project_1_desc: "Complete villa electrical works with top quality standards.",
-        project_2_title: "Factory Electrical Panel",
+project_2_title: "Factory Electrical Panel",
         project_2_desc: "Full electrical panel installation with all protection systems.",
         project_3_title: "Electricity Meters",
         project_3_desc: "Installation and maintenance of prepaid and smart meters.",
+        project_4_title: "Project 4",
+        project_4_desc: "Write the project description here, and you can attach an image or video.",
+        project_5_title: "Project 5",
+        project_5_desc: "Write the project description here, and you can attach an image or video.",
+        project_6_title: "Project 6",
+        project_6_desc: "Write the project description here, and you can attach an image or video.",
+        video_label: "Video",
         why_title: "Why Choose Omara?",
         why_1_title: "Over 20 Years Experience",
         why_1_desc: "Long experience in all electrical and contracting works.",
@@ -311,6 +325,15 @@ const langBtn = document.getElementById("langToggle");
     }
 
     updateCopyright();
+
+    // Re-render dynamic projects (from Supabase) in the new language.
+    // Only if the grid is currently DB-driven (data-db-grid is set).
+    if (window.OmaraBackend && window.appSupabase) {
+        const grid = document.querySelector(".projects-grid");
+        if (grid && grid.hasAttribute("data-db-grid")) {
+            loadProjectsFromBackend();
+        }
+    }
 }
 
 const SERVICE_NAMES = {
@@ -377,7 +400,26 @@ if (!name || !phone || !service || !message) {
         ].join("\n");
 
 const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
-        window.open(url, "_blank");
+
+        // === Backend: save lead to Supabase (مع مهلة قصوى حتى لا يعلق) ===
+        // الترتيب: حفظ البيانات ← فتح واتساب
+        // ولو Supabase فشل أو أبطأ، واتساب يفضل يشتغل دائمًا.
+        const saveLeadPromise = (window.OmaraBackend && window.appSupabase)
+            ? window.OmaraBackend.saveLead({ name, phone, service, message })
+            : Promise.resolve({ ok: false, error: "backend not configured" });
+
+        const TIMEOUT_MS = 2500;
+        const timeoutPromise = new Promise((resolve) => setTimeout(() => resolve({ ok: false, error: "timeout" }), TIMEOUT_MS));
+
+        Promise.race([saveLeadPromise, timeoutPromise])
+            .then((res) => {
+                if (!res.ok) console.warn("Lead not saved:", res.error);
+            })
+            .catch((err) => console.warn("Lead not saved:", err))
+            .finally(() => {
+                // واتساب يتفتح دائمًا — سواء نجح الحفظ أو لا
+                window.open(url, "_blank");
+            });
     });
 }
 
@@ -388,6 +430,8 @@ const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
 const videoModal = document.getElementById("videoModal");
 const modalVideo = document.getElementById("modalVideo");
 const modalClose = document.getElementById("modalClose");
+window.videoModal = videoModal;
+window.modalVideo = modalVideo;
 
 document.querySelectorAll(".project-card--media").forEach((card) => {
     card.addEventListener("click", () => {
@@ -429,4 +473,86 @@ if (videoModal) {
             closeVideoModal();
         }
     });
+}
+
+/* ==========================
+   Dynamic Projects (CMS)
+========================== */
+
+async function loadProjectsFromBackend() {
+    const grid = document.querySelector(".projects-grid");
+    if (!grid) return;
+
+    // If backend not configured, keep static HTML as-is (fallback)
+    if (!window.appSupabase || !window.OmaraBackend) return;
+
+    const projects = await window.OmaraBackend.fetchProjects();
+
+    // Supabase is now the PRIMARY source.
+    // If there are projects in the DB, render ONLY them (replace static cards → no duplicates).
+    // If there are NO projects in the DB (before seeding), keep the static HTML fallback.
+    if (!projects.length) return;
+
+    const videoLabel = translations[currentLang].video_label || "فيديو";
+
+    const cardsHTML = projects.map((p) => {
+        const title = currentLang === "ar"
+            ? (p.title || p.title_en || "")
+            : (p.title_en || p.title || "");
+        const desc = currentLang === "ar"
+            ? (p.description || p.description_en || "")
+            : (p.description_en || p.description || "");
+        const category = currentLang === "ar"
+            ? (p.category || "")
+            : "";
+        const isVideo = p.image_url && /\.(mp4|webm|ogg)(\?|$)/i.test(p.image_url);
+        return `
+            <div class="project-card ${isVideo ? "project-card--media" : ""}" ${isVideo ? `data-video="${p.image_url}"` : ""}>
+                <div class="project-image">
+                    ${isVideo
+                        ? `<img src="images/project-4.svg" alt="" loading="lazy">
+                           <span class="project-media-tag"><i class="fa-solid fa-video"></i> ${escapeHTML(videoLabel)}</span>
+                           <span class="project-play-btn"><i class="fa-solid fa-play"></i></span>`
+                        : (p.image_url
+                            ? `<img src="${p.image_url}" alt="${escapeHTML(title)}" loading="lazy">`
+                            : `<img src="images/project-4.svg" alt="${escapeHTML(title)}" loading="lazy">`)}
+                </div>
+                <div class="project-content">
+                    ${category ? `<span class="project-category">${escapeHTML(category)}</span>` : ""}
+                    <h3>${escapeHTML(title)}</h3>
+                    <p>${escapeHTML(desc)}</p>
+                </div>
+            </div>
+        `;
+    }).join("");
+
+// Replace grid content with DB data (keep header/footer/sections intact)
+    grid.innerHTML = cardsHTML;
+    grid.setAttribute("data-db-grid", "true");
+
+    // Re-wire video modal for dynamically added cards
+    document.querySelectorAll(".project-card--media").forEach((card) => {
+        card.addEventListener("click", () => {
+            const videoSrc = card.getAttribute("data-video");
+            if (videoSrc && window.videoModal && window.modalVideo) {
+                window.modalVideo.src = videoSrc;
+                window.videoModal.classList.add("active");
+                document.body.style.overflow = "hidden";
+                window.modalVideo.play().catch(() => {});
+            }
+        });
+    });
+}
+
+function escapeHTML(str) {
+    const div = document.createElement("div");
+    div.textContent = str || "";
+    return div.innerHTML;
+}
+
+// Load dynamic projects after DOM ready
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", loadProjectsFromBackend);
+} else {
+    loadProjectsFromBackend();
 }

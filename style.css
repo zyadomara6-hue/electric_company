@@ -1020,6 +1020,23 @@ body{
     font-size:16px;
 }
 
+.project-category{
+    display:inline-block;
+    background:#0B1F3A;
+    color:#FFD700;
+    font-size:12px;
+    font-weight:700;
+    padding:4px 12px;
+    border-radius:20px;
+    margin-bottom:10px;
+    letter-spacing:.02em;
+}
+
+body.dark-mode .project-category{
+    background:#FFD700;
+    color:#0B1F3A;
+}
+
 /* ==========================
    Why Us
 ========================== */
@@ -1450,6 +1467,46 @@ body.dark-mode .form-group textarea{
     background:#1b1b1b;
     border-color:#444;
     color:#fff;
+}
+
+/* ==========================
+   Dark Mode — Hero & About Buttons (eye-comfortable colors)
+========================== */
+
+/* Hero: تواصل معنا (btn-primary) */
+body.dark-mode .hero-buttons .btn-primary{
+    background:#e6b800;
+    color:#0B1F3A;
+}
+body.dark-mode .hero-buttons .btn-primary:hover{
+    background:#f0c400;
+    color:#0B1F3A;
+}
+
+/* Hero: خدمتنا (btn-secondary) */
+body.dark-mode .hero-buttons .btn-secondary{
+    border-color:#e6b800;
+    color:#e6d9a0;
+    background:transparent;
+}
+body.dark-mode .hero-buttons .btn-secondary:hover{
+    background:#e6b800;
+    color:#0B1F3A;
+    border-color:#e6b800;
+}
+
+/* About: تواصل معنا + خدمتنا (كانت بلون كحلي غير ظاهر على الخلفية الداكنة) */
+body.dark-mode .about-buttons .btn-primary,
+body.dark-mode .about-buttons .btn-secondary{
+    border-color:#e6b800;
+    color:#e6d9a0;
+    background:transparent;
+}
+body.dark-mode .about-buttons .btn-primary:hover,
+body.dark-mode .about-buttons .btn-secondary:hover{
+    background:#e6b800;
+    color:#0B1F3A;
+    border-color:#e6b800;
 }
 
 /* ==========================
