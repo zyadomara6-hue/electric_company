@@ -108,7 +108,7 @@ editingId = id;
         document.getElementById("projMsg").textContent = "✏️ تعديل المشروع — عدّل البيانات ثم اضغط حفظ.";
         document.getElementById("projSubmit").innerHTML = '<i class="fa-solid fa-save"></i> حفظ التعديلات';
         document.getElementById("projCancelEdit").style.display = "inline-block";
-        document.getElementById("projForm").scrollIntoView({ behavior: "smooth" });
+        document.getElementById("projectForm").scrollIntoView({ behavior: "smooth" });
     };
 
     window.cancelEdit = () => {

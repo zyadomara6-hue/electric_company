@@ -184,6 +184,8 @@ project_2_title: "لوحة كهرباء مصنع",
         form_msg_phone: "رقم التليفون",
         form_msg_service: "نوع الخدمة",
         form_msg_details: "التفاصيل",
+        form_error_required: "من فضلك املأ جميع الحقول المطلوبة.",
+        form_error_phone: "رقم الهاتف غير صحيح. من فضلك أدخل رقم مصري صحيح (مثال: 01xxxxxxxxx).",
         footer_title: "مؤسسة عمارة للكهرباء والمقاولات",
         footer_desc: "نقدم حلولاً كهربائية متكاملة للمنازل والشركات والمصانع بأعلى معايير الجودة والأمان.",
 footer_whatsapp: "واتساب",
@@ -285,6 +287,8 @@ project_2_title: "Factory Electrical Panel",
         form_msg_phone: "Phone",
         form_msg_service: "Service",
         form_msg_details: "Details",
+        form_error_required: "Please fill in all required fields.",
+        form_error_phone: "Invalid phone number. Please enter a valid Egyptian number (e.g., 01xxxxxxxxx).",
         footer_title: "Omara Electrical & Contracting",
         footer_desc: "Complete electrical solutions for homes, businesses, and factories with top quality and safety.",
 footer_whatsapp: "WhatsApp",
@@ -375,6 +379,9 @@ updateCopyright();
 const whatsappForm = document.getElementById("whatsappForm");
 
 if (whatsappForm) {
+    const whatsappFormMsg = document.getElementById("whatsappFormMsg");
+    const EGYPT_PHONE_REGEX = /^(?:\+?20|0)1[0125][0-9]{8}$/;
+
     whatsappForm.addEventListener("submit", (e) => {
         e.preventDefault();
 
@@ -384,7 +391,24 @@ if (whatsappForm) {
         const service = document.getElementById("clientService").value;
         const message = document.getElementById("clientMessage").value.trim();
 
-if (!name || !phone || !service || !message) {
+        if (whatsappFormMsg) {
+            whatsappFormMsg.textContent = "";
+            whatsappFormMsg.classList.remove("form-msg--error");
+        }
+
+        if (!name || !phone || !service || !message) {
+            if (whatsappFormMsg) {
+                whatsappFormMsg.textContent = dict.form_error_required;
+                whatsappFormMsg.classList.add("form-msg--error");
+            }
+            return;
+        }
+
+        if (!EGYPT_PHONE_REGEX.test(phone.replace(/[\s-]/g, ""))) {
+            if (whatsappFormMsg) {
+                whatsappFormMsg.textContent = dict.form_error_phone;
+                whatsappFormMsg.classList.add("form-msg--error");
+            }
             return;
         }
 
