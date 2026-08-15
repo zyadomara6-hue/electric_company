@@ -66,15 +66,37 @@
                         <textarea id="projDesc" rows="2" placeholder="وصف المشروع (عربي)"></textarea>
                         <textarea id="projDescEn" rows="2" placeholder="وصف المشروع (إنجليزي)"></textarea>
                         <div class="form-row">
-                            <input type="text" id="projLink" placeholder="رابط صورة أو فيديو (اختياري)">
                             <input type="number" id="projSort" placeholder="الترتيب (0 = الأول)" value="0">
                         </div>
-<div class="form-row">
-                            <input type="file" id="projImage" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp,video/mp4,video/webm">
-                            <button type="submit" class="btn-primary" id="projSubmit"><i class="fa-solid fa-save"></i> حفظ المشروع</button>
+
+                        <!-- قسم رفع وإدارة الصور والفيديوهات المتعددة -->
+                        <div class="media-upload-section">
+                            <label class="form-section-label"><i class="fa-solid fa-photo-film"></i> صور وفيديوهات المشروع (يمكنك اختيار عدة صور/فيديوهات معاً):</label>
+                            
+                            <div class="form-row form-row--media">
+                                <div class="file-input-wrapper">
+                                    <input type="file" id="projImages" multiple accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp,video/mp4,video/webm">
+                                </div>
+                                <div class="link-input-group">
+                                    <input type="text" id="projLinkInput" placeholder="أو اكتب رابط صورة/فيديو مباشر">
+                                    <button type="button" id="addLinkBtn" class="admin-btn admin-btn--ghost"><i class="fa-solid fa-plus"></i> إضافة الرابط</button>
+                                </div>
+                            </div>
+                            
+                            <p class="file-hint">📎 يمكنك اختيار عدة صور وفيديوهات من جهازك في نفس الوقت أو إضافة روابط. (الصور حتى 5MB — الفيديوهات حتى 50MB)</p>
+                            
+                            <!-- قائمة معاينة الوسائط المحددة -->
+                            <div id="mediaManagerContainer" class="media-manager-container" style="display:none;">
+                                <div class="media-manager-header">
+                                    <strong><i class="fa-solid fa-images"></i> الوسائط المحددة للمشروع (<span id="mediaCount">0</span>):</strong>
+                                    <button type="button" id="clearAllMediaBtn" class="admin-btn admin-btn--danger admin-btn--sm"><i class="fa-solid fa-trash-can"></i> مسح جميع الصور</button>
+                                </div>
+                                <div id="mediaGalleryPreview" class="media-gallery-preview"></div>
+                            </div>
                         </div>
-                        <p class="file-hint">📎 الصور: JPG / JPEG / PNG / WEBP (حتى 5MB) — الفيديو: MP4 / WEBM (حتى 50MB)</p>
-                        <div class="form-row">
+
+                        <div class="form-row form-row--submit">
+                            <button type="submit" class="btn-primary" id="projSubmit"><i class="fa-solid fa-save"></i> حفظ المشروع</button>
                             <button type="button" id="projCancelEdit" class="admin-btn admin-btn--danger" style="display:none;" onclick="cancelEdit()"><i class="fa-solid fa-xmark"></i> إلغاء التعديل</button>
                         </div>
                         <p id="projMsg" class="form-msg"></p>
@@ -89,10 +111,13 @@
                 </div>
             </section>
 
-<!-- ===== Leads Tab ===== -->
+            <!-- ===== Leads Tab ===== -->
             <section id="tab-leads" class="admin-tab-panel">
                 <div class="admin-card">
-                    <h2 class="admin-card__title"><i class="fa-solid fa-envelope"></i> سجل تواصل العملاء</h2>
+                    <div class="admin-card__header-flex">
+                        <h2 class="admin-card__title"><i class="fa-solid fa-envelope"></i> سجل تواصل العملاء</h2>
+                        <button id="exportLeadsBtn" class="admin-btn admin-btn--ghost"><i class="fa-solid fa-file-excel"></i> تصدير إكسيل (CSV)</button>
+                    </div>
 
                     <div class="leads-filter" id="leadsFilter">
                         <button class="leads-filter__btn active" data-filter="all"><i class="fa-solid fa-list"></i> الكل</button>

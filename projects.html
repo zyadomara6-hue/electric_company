@@ -36,6 +36,22 @@
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css">
 
+    <!-- Structured Data: CollectionPage -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      "name": "مشاريع مؤسسة عمارة للكهرباء والمقاولات",
+      "description": "أعمال ومشاريع كهربائية تم تنفيذها باحترافية وجودة عالية.",
+      "url": "https://zyadomara6-hue.github.io/electric_company/projects.html",
+      "provider": {
+        "@type": "Electrician",
+        "name": "مؤسسة عمارة للكهرباء والمقاولات",
+        "telephone": "+201033442338"
+      }
+    }
+    </script>
+
 </head>
 
 <body>
@@ -111,123 +127,18 @@
 
     <div class="container">
 
-        <div class="projects-grid">
-
-            <div class="project-card">
-
-                <div class="project-image">
-                    <img src="images/project-1.jpg" alt="تأسيس كهرباء فيلا" loading="lazy">
-                </div>
-
-                <div class="project-content">
-
-                    <h3 data-i18n="project_1_title">تأسيس كهرباء فيلا</h3>
-
-                    <p data-i18n="project_1_desc">
-
-                        تنفيذ جميع أعمال الكهرباء الخاصة بالفيلا بأعلى معايير الجودة.
-
-                    </p>
-
-                </div>
-
+        <div class="projects-carousel-wrapper">
+            <div class="projects-scroll-hint" aria-hidden="true">
+                <i class="fa-solid fa-arrows-left-right"></i>
+                <span data-i18n="swipe_hint">اسحب لمشاهدة جميع المشاريع</span>
             </div>
 
-            <div class="project-card">
-
-                <div class="project-image">
-                    <img src="images/project-2.png" alt="لوحة مكثفات" loading="lazy">
+            <div class="projects-grid" id="projectsGrid">
+                <div class="projects-loading-state">
+                    <div class="projects-loading-spinner"></div>
+                    <p data-i18n="projects_loading">جاري تحميل المشاريع...</p>
                 </div>
-
-                <div class="project-content">
-
-                    <h3 data-i18n="project_2_title">لوحة كهرباء مصنع</h3>
-
-                    <p data-i18n="project_2_desc">
-
-                        تركيب لوحة كهربائية كاملة مع جميع وسائل الحماية.
-
-                    </p>
-
-                </div>
-
             </div>
-
-<div class="project-card">
-
-                <div class="project-image">
-                    <img src="images/project-3.png" alt="عدادات الكهرباء" loading="lazy">
-                </div>
-
-                <div class="project-content">
-
-                    <h3 data-i18n="project_3_title">عدادات الكهرباء</h3>
-
-                    <p data-i18n="project_3_desc">
-
-                        تركيب وصيانة العدادات مسبقة الدفع والعدادات الذكية.
-
-                    </p>
-
-                </div>
-
-            </div>
-
-<div class="project-card project-card--media" data-video="images/hero-video.mp4">
-
-<div class="project-image">
-                    <img src="images/project-4.svg" alt="فيديو مشروع كهربائي لمؤسسة عمارة" loading="lazy">
-                    <span class="project-media-tag"><i class="fa-solid fa-video"></i> <span data-i18n="video_label">فيديو</span></span>
-                    <span class="project-play-btn"><i class="fa-solid fa-play"></i></span>
-                </div>
-
-                <div class="project-content">
-
-                    <h3 data-i18n="project_4_title">مشروع 4</h3>
-
-                    <p data-i18n="project_4_desc">ضع وصف المشروع هنا، ويمكن إرفاق صورة أو فيديو.</p>
-
-                </div>
-
-            </div>
-
-<div class="project-card project-card--media" data-video="images/hero-video.mp4">
-
-                <div class="project-image">
-<img src="images/project-5.svg" alt="فيديو أعمال كهربائية لمؤسسة عمارة" loading="lazy">
-                    <span class="project-media-tag"><i class="fa-solid fa-video"></i> <span data-i18n="video_label">فيديو</span></span>
-                    <span class="project-play-btn"><i class="fa-solid fa-play"></i></span>
-                </div>
-
-                <div class="project-content">
-
-                    <h3 data-i18n="project_5_title">مشروع 5</h3>
-
-                    <p data-i18n="project_5_desc">ضع وصف المشروع هنا، ويمكن إرفاق صورة أو فيديو.</p>
-
-                </div>
-
-            </div>
-
-<div class="project-card project-card--media" data-video="images/hero-video.mp4">
-
-                <div class="project-image">
-<img src="images/project-6.svg" alt="فيديو مشروع كهربائي تنفيذ مؤسسة عمارة" loading="lazy">
-                    <span class="project-media-tag"><i class="fa-solid fa-video"></i> <span data-i18n="video_label">فيديو</span></span>
-                    <span class="project-play-btn"><i class="fa-solid fa-play"></i></span>
-                </div>
-
-                <div class="project-content">
-
-                    <h3 data-i18n="project_6_title">مشروع 6</h3>
-
-                    <p data-i18n="project_6_desc">ضع وصف المشروع هنا، ويمكن إرفاق صورة أو فيديو.</p>
-
-                </div>
-
-            </div>
-
-        </div>
 
         <div class="section-cta">
             <a href="contact.html" class="btn-primary" data-i18n="projects_cta">ابدأ مشروعك معنا</a>
@@ -315,15 +226,41 @@
 </a>
 
 <!-- ==========================
-     Video Modal
+     Lightbox Gallery Modal
 ========================== -->
 
-<div class="modal-overlay" id="videoModal">
-    <div class="modal-content">
-        <button class="modal-close" id="modalClose" aria-label="إغلاق">
-            <i class="fa-solid fa-xmark"></i>
-        </button>
-        <video id="modalVideo" controls playsinline></video>
+<div class="lightbox-modal" id="lightboxModal" aria-hidden="true">
+    <div class="lightbox-backdrop"></div>
+    <div class="lightbox-container">
+        <div class="lightbox-header">
+            <div class="lightbox-counter" id="lightboxCounter">1 / 1</div>
+            <button class="lightbox-close-btn" id="lightboxClose" aria-label="إغلاق">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <div class="lightbox-stage">
+            <button class="lightbox-nav-btn lightbox-prev-btn" id="lightboxPrev" aria-label="السابق">
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
+
+            <div class="lightbox-content" id="lightboxContent">
+                <img id="lightboxImage" src="" alt="" style="display:none;">
+                <video id="lightboxVideo" controls playsinline style="display:none;"></video>
+            </div>
+
+            <button class="lightbox-nav-btn lightbox-next-btn" id="lightboxNext" aria-label="التالي">
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+        </div>
+
+        <div class="lightbox-footer">
+            <div class="lightbox-info">
+                <h3 id="lightboxTitle" class="lightbox-title"></h3>
+                <p id="lightboxDesc" class="lightbox-desc"></p>
+            </div>
+            <div id="lightboxThumbs" class="lightbox-thumbs"></div>
+        </div>
     </div>
 </div>
 

@@ -24,7 +24,7 @@ if not exist "images\project-3.png" (
 )
 
 echo جاري إضافة الصور...
-git add "images/project-1.jpg" "images/project-2.png" "images/project-3.png" "images/logo.PNG" 2>nul
+git add "images/project-1.jpg" "images/project-2.png" "images/project-3.png" 2>nul
 git add images/
 
 echo.

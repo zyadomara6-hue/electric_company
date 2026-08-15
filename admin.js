@@ -90,30 +90,155 @@
     });
 
 // ---------- Projects CRUD ----------
+    // ---------- Projects CRUD with Multi-Media Support ----------
     let editingId = null; // معرف المشروع الجاري تعديله (null = إضافة جديدة)
+    let currentMediaList = []; // مصفوفة الوسائط الحالية: [{ id, url, previewUrl, type, file, isLocal }]
+
+    const projImages = document.getElementById("projImages");
+    const projLinkInput = document.getElementById("projLinkInput");
+    const addLinkBtn = document.getElementById("addLinkBtn");
+    const mediaManagerContainer = document.getElementById("mediaManagerContainer");
+    const mediaGalleryPreview = document.getElementById("mediaGalleryPreview");
+    const mediaCount = document.getElementById("mediaCount");
+    const clearAllMediaBtn = document.getElementById("clearAllMediaBtn");
+
+    function isVideoUrlOrFile(urlOrName) {
+        return /\.(mp4|webm|ogg)(\?|$)/i.test(urlOrName || "");
+    }
+
+    function renderMediaGallery() {
+        if (!mediaManagerContainer || !mediaGalleryPreview) return;
+        if (!currentMediaList.length) {
+            mediaManagerContainer.style.display = "none";
+            mediaGalleryPreview.innerHTML = "";
+            if (mediaCount) mediaCount.textContent = "0";
+            return;
+        }
+
+        mediaManagerContainer.style.display = "block";
+        if (mediaCount) mediaCount.textContent = currentMediaList.length;
+
+        mediaGalleryPreview.innerHTML = currentMediaList.map((item, index) => {
+            const isVideo = item.type === "video" || isVideoUrlOrFile(item.url || item.file?.name);
+            const displaySrc = item.previewUrl || item.url;
+            return `
+                <div class="media-gallery-item ${index === 0 ? 'media-gallery-item--cover' : ''}" data-index="${index}">
+                    ${index === 0 ? '<span class="media-cover-badge"><i class="fa-solid fa-star"></i> الغلاف</span>' : ''}
+                    <span class="media-type-badge">${isVideo ? '<i class="fa-solid fa-video"></i>' : '<i class="fa-solid fa-image"></i>'}</span>
+                    ${isVideo
+                        ? `<div class="media-thumb-video"><video src="${displaySrc}" muted></video></div>`
+                        : `<img src="${displaySrc}" alt="معاينة" class="media-thumb-img">`
+                    }
+                    <button type="button" class="media-remove-btn" title="حذف" onclick="removeMediaItem(${index})">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            `;
+        }).join("");
+    }
+
+    window.removeMediaItem = (index) => {
+        currentMediaList.splice(index, 1);
+        renderMediaGallery();
+    };
+
+    if (clearAllMediaBtn) {
+        clearAllMediaBtn.addEventListener("click", () => {
+            if (!currentMediaList.length) return;
+            if (confirm("هل تريد مسح جميع الصور والفيديوهات المحددة لهذا المشروع؟")) {
+                currentMediaList = [];
+                if (projImages) projImages.value = "";
+                renderMediaGallery();
+            }
+        });
+    }
+
+    // إضافة ملفات من الجهاز (عدة ملفات)
+    if (projImages) {
+        projImages.addEventListener("change", (e) => {
+            const files = Array.from(e.target.files || []);
+            for (const file of files) {
+                const validation = validateFile(file);
+                if (!validation.ok) {
+                    alert(validation.message);
+                    continue;
+                }
+                const isVideo = ALLOWED_VIDEO_TYPES.includes(file.type);
+                const previewUrl = URL.createObjectURL(file);
+                currentMediaList.push({
+                    id: Math.random().toString(36).slice(2, 9),
+                    file,
+                    previewUrl,
+                    type: isVideo ? "video" : "image",
+                    isLocal: true
+                });
+            }
+            renderMediaGallery();
+            projImages.value = "";
+        });
+    }
+
+    // إضافة رابط مباشر
+    if (addLinkBtn && projLinkInput) {
+        addLinkBtn.addEventListener("click", () => {
+            const url = projLinkInput.value.trim();
+            if (!url) return;
+            const isVideo = isVideoUrlOrFile(url);
+            currentMediaList.push({
+                id: Math.random().toString(36).slice(2, 9),
+                url,
+                previewUrl: url,
+                type: isVideo ? "video" : "image",
+                isLocal: false
+            });
+            projLinkInput.value = "";
+            renderMediaGallery();
+        });
+    }
 
     window.editProject = async (id) => {
         const { data, error } = await sb().from("projects").select("*").eq("id", id).single();
         if (error) { alert(error.message); return; }
         if (!data) return;
 
-editingId = id;
+        editingId = id;
         document.getElementById("projTitle").value = data.title || "";
         document.getElementById("projTitleEn").value = data.title_en || "";
         document.getElementById("projCategory").value = data.category || "";
         document.getElementById("projDesc").value = data.description || "";
         document.getElementById("projDescEn").value = data.description_en || "";
-        document.getElementById("projLink").value = data.image_url || "";
         document.getElementById("projSort").value = data.sort_order || 0;
-        document.getElementById("projMsg").textContent = "✏️ تعديل المشروع — عدّل البيانات ثم اضغط حفظ.";
+        document.getElementById("projMsg").textContent = "✏️ تعديل المشروع — عدّل البيانات والوسائط ثم اضغط حفظ.";
         document.getElementById("projSubmit").innerHTML = '<i class="fa-solid fa-save"></i> حفظ التعديلات';
         document.getElementById("projCancelEdit").style.display = "inline-block";
+
+        // تحميل الوسائط
+        currentMediaList = [];
+        if (Array.isArray(data.media) && data.media.length) {
+            currentMediaList = data.media.map((m) => {
+                const url = typeof m === "string" ? m : m.url;
+                const type = (typeof m === "object" && m.type) ? m.type : (isVideoUrlOrFile(url) ? "video" : "image");
+                return { id: Math.random().toString(36).slice(2, 9), url, previewUrl: url, type, isLocal: false };
+            });
+        } else if (data.image_url) {
+            currentMediaList = [{
+                id: Math.random().toString(36).slice(2, 9),
+                url: data.image_url,
+                previewUrl: data.image_url,
+                type: isVideoUrlOrFile(data.image_url) ? "video" : "image",
+                isLocal: false
+            }];
+        }
+        renderMediaGallery();
+
         document.getElementById("projectForm").scrollIntoView({ behavior: "smooth" });
     };
 
     window.cancelEdit = () => {
         editingId = null;
         projectForm.reset();
+        currentMediaList = [];
+        renderMediaGallery();
         document.getElementById("projMsg").textContent = "";
         document.getElementById("projSubmit").innerHTML = '<i class="fa-solid fa-save"></i> حفظ المشروع';
         document.getElementById("projCancelEdit").style.display = "none";
@@ -123,37 +248,59 @@ editingId = id;
         const { data, error } = await sb().from("projects").select("*").order("sort_order", { ascending: true });
         if (error) { projectsList.innerHTML = `<p class="empty">خطأ: ${error.message}</p>`; return; }
         if (!data.length) { projectsList.innerHTML = `<p class="empty">لا توجد مشاريع بعد. أضف أول مشروع.</p>`; return; }
-        projectsList.innerHTML = data.map((p) => `
+        projectsList.innerHTML = data.map((p) => {
+            const count = Array.isArray(p.media) && p.media.length ? p.media.length : (p.image_url ? 1 : 0);
+            return `
             <div class="project-admin-item">
-                ${p.image_url ? `<img src="${p.image_url}" alt="" class="project-admin-thumb">` : '<div class="project-admin-thumb project-admin-thumb--empty"><i class="fa-solid fa-image"></i></div>'}
-<div class="project-admin-info">
+                <div class="project-admin-thumb-wrap">
+                    ${p.image_url ? `<img src="${p.image_url}" alt="" class="project-admin-thumb">` : '<div class="project-admin-thumb project-admin-thumb--empty"><i class="fa-solid fa-image"></i></div>'}
+                    ${count > 1 ? `<span class="project-admin-mediacount" title="${count} صور وفيديوهات"><i class="fa-solid fa-photo-film"></i> ${count}</span>` : ''}
+                </div>
+                <div class="project-admin-info">
                     <strong>${p.title || ""}</strong>
                     <span>${p.title_en || ""}</span>
-                    ${p.category ? `<span class="project-admin-category">${escapeHtml(p.category)}</span>` : ""}
+                    <div class="project-admin-meta">
+                        ${p.category ? `<span class="project-admin-category">${escapeHtml(p.category)}</span>` : ""}
+                        ${count > 1 ? `<span class="project-admin-tag-media">${count} وسائط</span>` : ""}
+                    </div>
                 </div>
-<div class="project-admin-actions">
+                <div class="project-admin-actions">
                     <button class="admin-btn admin-btn--ghost" onclick="editProject('${p.id}')"><i class="fa-solid fa-pen"></i> تعديل</button>
                     <button class="admin-btn admin-btn--ghost" onclick="toggleStatus('${p.id}','${p.status}')">${p.status === 'active' ? 'إخفاء' : 'إظهار'}</button>
                     <button class="admin-btn admin-btn--danger" onclick="deleteProject('${p.id}')"><i class="fa-solid fa-trash"></i></button>
                 </div>
             </div>
-        `).join("");
+        `;
+        }).join("");
     }
 
-window.deleteProject = async (id) => {
-        if (!confirm("هل أنت متأكد من حذف هذا المشروع؟")) return;
+    window.deleteProject = async (id) => {
+        if (!confirm("هل أنت متأكد من حذف هذا المشروع وجميع ملفاته؟")) return;
 
-        // حذف الصورة/الملف المرتبط من storage أولًا (لو موجود)
-        const { data } = await sb().from("projects").select("image_url").eq("id", id).single();
-        if (data && data.image_url) {
-            const url = data.image_url;
+        // حذف الملفات المرتبطة من storage
+        const { data } = await sb().from("projects").select("image_url, media").eq("id", id).single();
+        if (data) {
+            const urls = [];
+            if (data.image_url) urls.push(data.image_url);
+            if (Array.isArray(data.media)) {
+                data.media.forEach((m) => {
+                    const u = typeof m === "string" ? m : m.url;
+                    if (u) urls.push(u);
+                });
+            }
+
             const marker = "/object/public/project-images/";
-            const idx = url.indexOf(marker);
-            if (idx !== -1) {
-                const path = url.substring(idx + marker.length).split("?")[0];
-                if (path) {
-                    await sb().storage.from("project-images").remove([path]).catch(() => {});
+            const pathsToDelete = [];
+            urls.forEach((url) => {
+                const idx = url.indexOf(marker);
+                if (idx !== -1) {
+                    const path = url.substring(idx + marker.length).split("?")[0];
+                    if (path && !pathsToDelete.includes(path)) pathsToDelete.push(path);
                 }
+            });
+
+            if (pathsToDelete.length) {
+                await sb().storage.from("project-images").remove(pathsToDelete).catch(() => {});
             }
         }
 
@@ -169,14 +316,13 @@ window.deleteProject = async (id) => {
         loadProjects();
     };
 
-// ---------- File validation (before upload to Supabase) ----------
+    // ---------- File validation ----------
     const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
     const ALLOWED_VIDEO_TYPES = ["video/mp4", "video/webm"];
     const MAX_IMAGE_SIZE = 5 * 1024 * 1024;   // 5MB
     const MAX_VIDEO_SIZE = 50 * 1024 * 1024;  // 50MB
 
     function validateFile(file) {
-        // التحقق من الصيغة
         const isImage = ALLOWED_IMAGE_TYPES.includes(file.type);
         const isVideo = ALLOWED_VIDEO_TYPES.includes(file.type);
         if (!isImage && !isVideo) {
@@ -186,13 +332,12 @@ window.deleteProject = async (id) => {
             };
         }
 
-        // التحقق من الحجم
         const maxSize = isVideo ? MAX_VIDEO_SIZE : MAX_IMAGE_SIZE;
         const limitText = isVideo ? "50MB" : "5MB";
         if (file.size > maxSize) {
             return {
                 ok: false,
-                message: `❌ حجم الملف يتجاوز الحد المسموح (${limitText} كحد أقصى).`
+                message: `❌ حجم الملف (${file.name}) يتجاوز الحد المسموح (${limitText} كحد أقصى).`
             };
         }
 
@@ -214,53 +359,67 @@ window.deleteProject = async (id) => {
     projectForm.addEventListener("submit", async (e) => {
         e.preventDefault();
         projMsg.textContent = "";
-const title = document.getElementById("projTitle").value.trim();
+        const title = document.getElementById("projTitle").value.trim();
         const titleEn = document.getElementById("projTitleEn").value.trim();
         const category = document.getElementById("projCategory").value.trim();
         const desc = document.getElementById("projDesc").value.trim();
         const descEn = document.getElementById("projDescEn").value.trim();
-        const link = document.getElementById("projLink").value.trim();
         const sort = Number(document.getElementById("projSort").value) || 0;
-        const file = document.getElementById("projImage").files[0];
 
-let image_url = link;
-        if (file) {
-            // التحقق من الصيغة والحجم قبل الرفع (لمنع إرسال الملف لـ Supabase)
-            const validation = validateFile(file);
-            if (!validation.ok) {
-                projMsg.textContent = validation.message;
-                return;
-            }
-            projMsg.textContent = "جاري رفع الملف...";
+        // رفع وحفظ الوسائط المحددة
+        const finalMedia = [];
+        if (currentMediaList.length > 0) {
+            projMsg.textContent = "جاري معالجة ورفع الوسائط...";
             try {
-                image_url = await uploadFile(file);
+                for (let i = 0; i < currentMediaList.length; i++) {
+                    const item = currentMediaList[i];
+                    if (item.isLocal && item.file) {
+                        projMsg.textContent = `جاري رفع الملف (${i + 1} من ${currentMediaList.length})...`;
+                        const uploadedUrl = await uploadFile(item.file);
+                        finalMedia.push({
+                            url: uploadedUrl,
+                            type: item.type || (isVideoUrlOrFile(uploadedUrl) ? "video" : "image")
+                        });
+                    } else if (item.url) {
+                        finalMedia.push({
+                            url: item.url,
+                            type: item.type || (isVideoUrlOrFile(item.url) ? "video" : "image")
+                        });
+                    }
+                }
             } catch (err) {
-                projMsg.textContent = err.message;
+                projMsg.textContent = "❌ خطأ أثناء الرفع: " + err.message;
                 return;
             }
         }
 
-let result;
+        const coverUrl = finalMedia.length > 0 ? finalMedia[0].url : null;
+
+        let result;
         if (editingId) {
             // وضع التعديل
-result = await sb().from("projects").update({
+            result = await sb().from("projects").update({
                 title, title_en: titleEn, category: category || null,
                 description: desc, description_en: descEn,
-                image_url: image_url || null, sort_order: sort
+                image_url: coverUrl,
+                media: finalMedia,
+                sort_order: sort
             }).eq("id", editingId);
         } else {
             // وضع الإضافة
             result = await sb().from("projects").insert([{
                 title, title_en: titleEn, category: category || null,
                 description: desc, description_en: descEn,
-                image_url: image_url || null, sort_order: sort, status: "active"
+                image_url: coverUrl,
+                media: finalMedia,
+                sort_order: sort, status: "active"
             }]);
         }
 
         if (result.error) {
             projMsg.textContent = "خطأ: " + result.error.message;
         } else {
-            projMsg.textContent = editingId ? "✅ تم حفظ التعديلات بنجاح" : "✅ تمت إضافة المشروع بنجاح";
+            projMsg.textContent = editingId ? "✅ تم حفظ التعديلات والوسائط بنجاح" : "✅ تمت إضافة المشروع بجميع وسائطه بنجاح";
             projectForm.reset();
             cancelEdit();
             loadProjects();
@@ -305,6 +464,17 @@ result = await sb().from("projects").update({
         return names[src] ? `${names[src]} (${src})` : src;
     }
 
+    // ---------- Delete Lead ----------
+    window.deleteLead = async (id) => {
+        if (!confirm("هل أنت متأكد من حذف هذا السجل نهائيًا؟")) return;
+        const { error } = await sb().from("leads").delete().eq("id", id);
+        if (error) {
+            alert("خطأ أثناء الحذف: " + error.message);
+        } else {
+            loadLeads();
+        }
+    };
+
     async function loadLeads() {
         const { data, error } = await sb().from("leads").select("*").order("created_at", { ascending: false });
         if (error) { leadsList.innerHTML = `<p class="empty">خطأ: ${error.message}</p>`; return; }
@@ -348,7 +518,10 @@ result = await sb().from("projects").update({
                         <span class="lead-type ${type.cls}"><i class="${type.icon}"></i> ${type.tag}</span>
                         <strong>${escapeHtml(l.name || "عميل من الموقع")}</strong>
                     </div>
-                    <span class="lead-date">${new Date(l.created_at).toLocaleString("ar-EG")}</span>
+                    <div class="lead-head__actions">
+                        <span class="lead-date">${new Date(l.created_at).toLocaleString("ar-EG")}</span>
+                        <button class="admin-btn admin-btn--danger admin-btn--sm" title="حذف السجل" onclick="deleteLead('${l.id}')"><i class="fa-solid fa-trash"></i></button>
+                    </div>
                 </div>
                 <div class="lead-body">
                     ${l.phone ? `<p><i class="fa-solid fa-phone"></i> ${escapeHtml(l.phone)}</p>` : ""}
@@ -360,6 +533,47 @@ result = await sb().from("projects").update({
             </div>
         `;
         }).join("");
+    }
+
+    // ---------- Export Leads to CSV (Excel) ----------
+    function exportLeadsToCSV() {
+        if (!allLeads || !allLeads.length) {
+            alert("لا توجد سجلات لتصديرها.");
+            return;
+        }
+
+        const headers = ["التاريخ", "نوع التواصل", "الاسم", "رقم الهاتف", "الخدمة", "المصدر", "رابط واتساب", "الرسالة"];
+        const rows = allLeads.map((l) => [
+            `"${new Date(l.created_at).toLocaleString("ar-EG")}"`,
+            `"${l.contact_type === "whatsapp" ? "تواصل واتساب" : "طلب فورم"}"`,
+            `"${(l.name || "").replace(/"/g, '""')}"`,
+            `"${(l.phone || "").replace(/"/g, '""')}"`,
+            `"${serviceLabel(l.service)}"`,
+            `"${pageSourceLabel(l.page_source)}"`,
+            `"${(l.wa_link || "").replace(/"/g, '""')}"`,
+            `"${(l.message || "").replace(/"/g, '""')}"`
+        ]);
+
+        // UTF-8 BOM (\uFEFF) for Arabic display in Excel
+        const csvContent = "\uFEFF" + [
+            headers.map((h) => `"${h}"`).join(","),
+            ...rows.map((r) => r.join(","))
+        ].join("\r\n");
+
+        const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", `omara-leads-${new Date().toISOString().slice(0, 10)}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    }
+
+    const exportLeadsBtn = document.getElementById("exportLeadsBtn");
+    if (exportLeadsBtn) {
+        exportLeadsBtn.addEventListener("click", exportLeadsToCSV);
     }
 
     // ---------- Leads filter ----------

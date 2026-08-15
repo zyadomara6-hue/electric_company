@@ -15,11 +15,15 @@ create table if not exists public.projects (
   description text,
   description_en text,
   image_url text,
+  media jsonb default '[]'::jsonb,  -- قائمة الصور والفيديوهات للمشروع الواحد
   category text,
   status text default 'active',
   sort_order bigint default 0,
   created_at timestamptz default now()
 );
+
+-- لو الجدول موجود مسبقاً، يضيف العمود دون مساس بالبيانات القديمة
+alter table public.projects add column if not exists media jsonb default '[]'::jsonb;
 
 alter table public.projects enable row level security;
 
@@ -51,14 +55,17 @@ create policy "Admin delete projects"
   using (true);
 
 -- ------------------------------------------------------------
--- 2) جدول رسائل العملاء (Leads) — 🔒 بيانات حساسة
+-- 2) جدول رسائل وتواصل العملاء (Leads 2.0) — 🔒 بيانات حساسة
 -- ------------------------------------------------------------
 create table if not exists public.leads (
   id uuid primary key default gen_random_uuid(),
-  name text not null,
-  phone text not null,
+  name text,
+  phone text,
   service text,
   message text,
+  contact_type text default 'form',   -- 'form' (طلب فورم) أو 'whatsapp' (ضغطة واتساب مباشرة)
+  page_source text,                    -- الصفحة التي تم منها التواصل (index.html, services.html, ...)
+  wa_link text,                        -- رابط واتساب المستخدم إن توفر
   created_at timestamptz default now()
 );
 
@@ -79,12 +86,16 @@ create policy "Admin read leads"
   to authenticated
   using (true);
 
--- ✅ الأدمن فقط يقدر يحذف رسائل العملاء (اختياري)
+-- ✅ الأدمن فقط يقدر يحذف رسائل العملاء
 drop policy if exists "Admin delete leads" on public.leads;
 create policy "Admin delete leads"
   on public.leads for delete
   to authenticated
   using (true);
+
+-- مؤشرات لتسريع الاستعلامات والفلترة
+create index if not exists idx_leads_contact_type on public.leads (contact_type);
+create index if not exists idx_leads_created_at on public.leads (created_at desc);
 
 -- ------------------------------------------------------------
 -- 3) جدول الإعدادات / المحتوى العام (اختياري)

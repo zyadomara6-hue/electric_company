@@ -73,15 +73,36 @@ if (menuToggle && navLinks) {
 }
 
 /* ==========================
-   Dark Mode (Lamp)
+   Dark Mode (Lamp) with localStorage persistence
 ========================== */
 
 const lamp = document.getElementById("lampToggle");
 
+function applyTheme(isDark) {
+    if (isDark) {
+        document.body.classList.add("dark-mode");
+        if (lamp) lamp.classList.add("on");
+    } else {
+        document.body.classList.remove("dark-mode");
+        if (lamp) lamp.classList.remove("on");
+    }
+}
+
+// Load saved theme
+try {
+    const savedTheme = localStorage.getItem("omara_theme");
+    if (savedTheme === "dark") {
+        applyTheme(true);
+    }
+} catch (e) {}
+
 if (lamp) {
     lamp.addEventListener("click", () => {
-        lamp.classList.toggle("on");
-        document.body.classList.toggle("dark-mode");
+        const isDark = !document.body.classList.contains("dark-mode");
+        applyTheme(isDark);
+        try {
+            localStorage.setItem("omara_theme", isDark ? "dark" : "light");
+        } catch (e) {}
     });
 }
 
@@ -144,6 +165,7 @@ project_2_title: "لوحة كهرباء مصنع",
         project_6_title: "مشروع 6",
         project_6_desc: "ضع وصف المشروع هنا، ويمكن إرفاق صورة أو فيديو.",
         video_label: "فيديو",
+        swipe_hint: "اسحب لمشاهدة جميع المشاريع",
         why_title: "لماذا تختار مؤسسة عمارة؟",
         why_1_title: "خبرة أكثر من 20 عامًا",
         why_1_desc: "خبرة طويلة في جميع أعمال الكهرباء والمقاولات.",
@@ -247,6 +269,7 @@ project_2_title: "Factory Electrical Panel",
         project_6_title: "Project 6",
         project_6_desc: "Write the project description here, and you can attach an image or video.",
         video_label: "Video",
+        swipe_hint: "Swipe to view all projects",
         why_title: "Why Choose Omara?",
         why_1_title: "Over 20 Years Experience",
         why_1_desc: "Long experience in all electrical and contracting works.",
@@ -302,9 +325,14 @@ let currentLang = "ar";
 
 const WHATSAPP_NUMBER = "201033442338";
 
-function setLanguage(lang) {
+function setLanguage(lang, save = true) {
     currentLang = lang;
-    const dict = translations[lang];
+    if (save) {
+        try {
+            localStorage.setItem("omara_lang", lang);
+        } catch (e) {}
+    }
+    const dict = translations[lang] || translations.ar;
 
     document.documentElement.lang = lang;
     document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
@@ -355,7 +383,7 @@ function updateCopyright() {
     const copyright = document.querySelector(".copyright");
     if (copyright) {
         const year = new Date().getFullYear();
-        const dict = translations[currentLang];
+        const dict = translations[currentLang] || translations.ar;
         const base = dict.copyright.split("|")[0].trim();
         const name = dict.copyright.split("|")[1] || dict.copyright;
         copyright.textContent = `${base} ${year} | ${name.trim()}`;
@@ -366,11 +394,21 @@ const langToggle = document.getElementById("langToggle");
 
 if (langToggle) {
     langToggle.addEventListener("click", () => {
-        setLanguage(currentLang === "ar" ? "en" : "ar");
+        setLanguage(currentLang === "ar" ? "en" : "ar", true);
     });
 }
 
-updateCopyright();
+// Restore saved language preference on initial load
+try {
+    const savedLang = localStorage.getItem("omara_lang");
+    if (savedLang && (savedLang === "en" || savedLang === "ar")) {
+        setLanguage(savedLang, false);
+    } else {
+        updateCopyright();
+    }
+} catch (e) {
+    updateCopyright();
+}
 
 /* ==========================
    WhatsApp Form
@@ -494,56 +532,230 @@ function setupWhatsAppTracking() {
 setupWhatsAppTracking();
 
 /* ==========================
-   Video Modal
+   Full-Screen Lightbox Gallery Modal (Images & Videos)
 ========================== */
 
-const videoModal = document.getElementById("videoModal");
-const modalVideo = document.getElementById("modalVideo");
-const modalClose = document.getElementById("modalClose");
-window.videoModal = videoModal;
-window.modalVideo = modalVideo;
+let activeLightboxMedia = [];
+let activeLightboxIndex = 0;
 
-document.querySelectorAll(".project-card--media").forEach((card) => {
-    card.addEventListener("click", () => {
-        const videoSrc = card.getAttribute("data-video");
-        if (videoSrc && videoModal && modalVideo) {
-            modalVideo.src = videoSrc;
-            videoModal.classList.add("active");
-            document.body.style.overflow = "hidden";
-            modalVideo.play().catch(() => {});
-        }
-    });
-});
+const lightboxModal = document.getElementById("lightboxModal");
+const lightboxImage = document.getElementById("lightboxImage");
+const lightboxVideo = document.getElementById("lightboxVideo");
+const lightboxCounter = document.getElementById("lightboxCounter");
+const lightboxTitle = document.getElementById("lightboxTitle");
+const lightboxDesc = document.getElementById("lightboxDesc");
+const lightboxThumbs = document.getElementById("lightboxThumbs");
+const lightboxClose = document.getElementById("lightboxClose");
+const lightboxPrev = document.getElementById("lightboxPrev");
+const lightboxNext = document.getElementById("lightboxNext");
 
-function closeVideoModal() {
-    if (videoModal) {
-        videoModal.classList.remove("active");
-        if (modalVideo) {
-            modalVideo.pause();
-            modalVideo.removeAttribute("src");
-            modalVideo.load();
+function openLightbox(projectData, startIndex = 0) {
+    if (!lightboxModal) return;
+
+    let media = [];
+    if (Array.isArray(projectData.media) && projectData.media.length) {
+        media = projectData.media.map((m) => {
+            const url = typeof m === "string" ? m : m.url;
+            const type = (typeof m === "object" && m.type) ? m.type : (/\.(mp4|webm|ogg)(\?|$)/i.test(url) ? "video" : "image");
+            return { url, type };
+        });
+    } else if (projectData.image_url) {
+        const isVid = /\.(mp4|webm|ogg)(\?|$)/i.test(projectData.image_url);
+        media = [{ url: projectData.image_url, type: isVid ? "video" : "image" }];
+    }
+
+    if (!media.length) return;
+
+    activeLightboxMedia = media;
+    activeLightboxIndex = Math.max(0, Math.min(startIndex, media.length - 1));
+
+    if (lightboxTitle) lightboxTitle.textContent = projectData.title || "";
+    if (lightboxDesc) lightboxDesc.textContent = projectData.desc || projectData.description || "";
+
+    lightboxModal.classList.add("active");
+    lightboxModal.setAttribute("aria-hidden", "false");
+    document.body.style.overflow = "hidden";
+
+    updateLightboxView();
+    renderLightboxThumbs();
+}
+
+function updateLightboxView() {
+    if (!activeLightboxMedia.length) return;
+    const current = activeLightboxMedia[activeLightboxIndex];
+    if (!current) return;
+
+    if (lightboxCounter) {
+        lightboxCounter.textContent = `${activeLightboxIndex + 1} / ${activeLightboxMedia.length}`;
+        lightboxCounter.style.display = activeLightboxMedia.length > 1 ? "inline-flex" : "none";
+    }
+
+    if (lightboxPrev && lightboxNext) {
+        const multi = activeLightboxMedia.length > 1;
+        lightboxPrev.style.display = multi ? "flex" : "none";
+        lightboxNext.style.display = multi ? "flex" : "none";
+    }
+
+    if (current.type === "video") {
+        if (lightboxImage) lightboxImage.style.display = "none";
+        if (lightboxVideo) {
+            lightboxVideo.style.display = "block";
+            lightboxVideo.src = current.url;
+            lightboxVideo.play().catch(() => {});
         }
-        document.body.style.overflow = "";
+    } else {
+        if (lightboxVideo) {
+            lightboxVideo.pause();
+            lightboxVideo.removeAttribute("src");
+            lightboxVideo.style.display = "none";
+        }
+        if (lightboxImage) {
+            lightboxImage.style.display = "block";
+            lightboxImage.src = current.url;
+            lightboxImage.alt = lightboxTitle ? lightboxTitle.textContent : "";
+        }
+    }
+
+    if (lightboxThumbs) {
+        lightboxThumbs.querySelectorAll(".lightbox-thumb").forEach((th, idx) => {
+            if (idx === activeLightboxIndex) {
+                th.classList.add("active");
+                th.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+            } else {
+                th.classList.remove("active");
+            }
+        });
     }
 }
 
-if (modalClose) {
-    modalClose.addEventListener("click", closeVideoModal);
+function renderLightboxThumbs() {
+    if (!lightboxThumbs) return;
+    if (activeLightboxMedia.length <= 1) {
+        lightboxThumbs.style.display = "none";
+        lightboxThumbs.innerHTML = "";
+        return;
+    }
+
+    lightboxThumbs.style.display = "flex";
+    lightboxThumbs.innerHTML = activeLightboxMedia.map((item, idx) => {
+        return `
+            <button type="button" class="lightbox-thumb ${idx === activeLightboxIndex ? 'active' : ''}" data-index="${idx}" aria-label="عرض الوسيط ${idx + 1}">
+                ${item.type === "video"
+                    ? '<i class="fa-solid fa-video lightbox-thumb-icon"></i>'
+                    : `<img src="${item.url}" alt="">`}
+            </button>
+        `;
+    }).join("");
+
+    lightboxThumbs.querySelectorAll(".lightbox-thumb").forEach((th) => {
+        th.addEventListener("click", () => {
+            const idx = Number(th.getAttribute("data-index"));
+            activeLightboxIndex = idx;
+            updateLightboxView();
+        });
+    });
 }
 
-if (videoModal) {
-    videoModal.addEventListener("click", (e) => {
-        if (e.target === videoModal) {
-            closeVideoModal();
+function closeLightbox() {
+    if (!lightboxModal) return;
+    lightboxModal.classList.remove("active");
+    lightboxModal.setAttribute("aria-hidden", "true");
+    if (lightboxVideo) {
+        lightboxVideo.pause();
+        lightboxVideo.removeAttribute("src");
+        lightboxVideo.load();
+        lightboxVideo.style.display = "none";
+    }
+    if (lightboxImage) {
+        lightboxImage.style.display = "none";
+        lightboxImage.removeAttribute("src");
+    }
+    document.body.style.overflow = "";
+}
+
+function nextLightboxItem() {
+    if (activeLightboxMedia.length <= 1) return;
+    activeLightboxIndex = (activeLightboxIndex + 1) % activeLightboxMedia.length;
+    updateLightboxView();
+}
+
+function prevLightboxItem() {
+    if (activeLightboxMedia.length <= 1) return;
+    activeLightboxIndex = (activeLightboxIndex - 1 + activeLightboxMedia.length) % activeLightboxMedia.length;
+    updateLightboxView();
+}
+
+if (lightboxClose) lightboxClose.addEventListener("click", closeLightbox);
+if (lightboxNext) lightboxNext.addEventListener("click", nextLightboxItem);
+if (lightboxPrev) lightboxPrev.addEventListener("click", prevLightboxItem);
+
+if (lightboxModal) {
+    lightboxModal.addEventListener("click", (e) => {
+        if (e.target.classList.contains("lightbox-backdrop") || e.target === lightboxModal) {
+            closeLightbox();
         }
     });
 
     document.addEventListener("keydown", (e) => {
-        if (e.key === "Escape") {
-            closeVideoModal();
+        if (!lightboxModal.classList.contains("active")) return;
+        if (e.key === "Escape") closeLightbox();
+        if (e.key === "ArrowRight") {
+            document.documentElement.dir === "rtl" ? prevLightboxItem() : nextLightboxItem();
+        }
+        if (e.key === "ArrowLeft") {
+            document.documentElement.dir === "rtl" ? nextLightboxItem() : prevLightboxItem();
         }
     });
+
+    // Touch swipe gestures
+    let touchStartX = 0;
+    let touchEndX = 0;
+    lightboxModal.addEventListener("touchstart", (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+
+    lightboxModal.addEventListener("touchend", (e) => {
+        touchEndX = e.changedTouches[0].screenX;
+        const diff = touchEndX - touchStartX;
+        if (Math.abs(diff) > 45) {
+            if (diff > 0) {
+                document.documentElement.dir === "rtl" ? prevLightboxItem() : nextLightboxItem();
+            } else {
+                document.documentElement.dir === "rtl" ? nextLightboxItem() : prevLightboxItem();
+            }
+        }
+    }, { passive: true });
 }
+
+function wireProjectCards() {
+    document.querySelectorAll(".project-card").forEach((card) => {
+        card.style.cursor = "pointer";
+        card.addEventListener("click", () => {
+            const mediaAttr = card.getAttribute("data-project-media");
+            let media = [];
+            if (mediaAttr) {
+                try { media = JSON.parse(mediaAttr); } catch (e) {}
+            }
+            if (!media.length) {
+                const videoSrc = card.getAttribute("data-video");
+                const imgSrc = card.querySelector(".project-image img")?.getAttribute("src");
+                if (videoSrc) {
+                    media = [{ url: videoSrc, type: "video" }];
+                } else if (imgSrc) {
+                    media = [{ url: imgSrc, type: "image" }];
+                }
+            }
+
+            const title = card.querySelector(".project-content h3")?.textContent || "";
+            const desc = card.querySelector(".project-content p")?.textContent || "";
+
+            openLightbox({ title, desc, media }, 0);
+        });
+    });
+}
+
+// Initial wire for static cards
+wireProjectCards();
 
 /* ==========================
    Dynamic Projects (CMS)
@@ -553,17 +765,18 @@ async function loadProjectsFromBackend() {
     const grid = document.querySelector(".projects-grid");
     if (!grid) return;
 
-    // If backend not configured, keep static HTML as-is (fallback)
-    if (!window.appSupabase || !window.OmaraBackend) return;
+    if (!window.appSupabase || !window.OmaraBackend) {
+        wireProjectCards();
+        return;
+    }
 
     const projects = await window.OmaraBackend.fetchProjects();
+    if (!projects.length) {
+        wireProjectCards();
+        return;
+    }
 
-    // Supabase is now the PRIMARY source.
-    // If there are projects in the DB, render ONLY them (replace static cards → no duplicates).
-    // If there are NO projects in the DB (before seeding), keep the static HTML fallback.
-    if (!projects.length) return;
-
-    const videoLabel = translations[currentLang].video_label || "فيديو";
+    const videoLabel = translations[currentLang]?.video_label || "فيديو";
 
     const cardsHTML = projects.map((p) => {
         const title = currentLang === "ar"
@@ -575,17 +788,32 @@ async function loadProjectsFromBackend() {
         const category = currentLang === "ar"
             ? (p.category || "")
             : "";
-        const isVideo = p.image_url && /\.(mp4|webm|ogg)(\?|$)/i.test(p.image_url);
+
+        // Resolve media array
+        let media = [];
+        if (Array.isArray(p.media) && p.media.length) {
+            media = p.media;
+        } else if (p.image_url) {
+            const isV = /\.(mp4|webm|ogg)(\?|$)/i.test(p.image_url);
+            media = [{ url: p.image_url, type: isV ? "video" : "image" }];
+        }
+
+        const coverItem = media[0] || { url: "images/project-4.svg", type: "image" };
+        const isCoverVideo = coverItem.type === "video" || /\.(mp4|webm|ogg)(\?|$)/i.test(coverItem.url);
+        const mediaCount = media.length;
+        const mediaJsonStr = JSON.stringify(media).replace(/"/g, '&quot;');
+
         return `
-            <div class="project-card ${isVideo ? "project-card--media" : ""}" ${isVideo ? `data-video="${p.image_url}"` : ""}>
+            <div class="project-card ${isCoverVideo ? "project-card--media" : ""}" data-project-media="${mediaJsonStr}">
                 <div class="project-image">
-                    ${isVideo
+                    ${isCoverVideo
                         ? `<img src="images/project-4.svg" alt="" loading="lazy">
                            <span class="project-media-tag"><i class="fa-solid fa-video"></i> ${escapeHTML(videoLabel)}</span>
                            <span class="project-play-btn"><i class="fa-solid fa-play"></i></span>`
-                        : (p.image_url
-                            ? `<img src="${p.image_url}" alt="${escapeHTML(title)}" loading="lazy">`
-                            : `<img src="images/project-4.svg" alt="${escapeHTML(title)}" loading="lazy">`)}
+                        : `<img src="${coverItem.url}" alt="${escapeHTML(title)}" loading="lazy">
+                           <span class="project-zoom-btn" title="تكبير ومعاينة"><i class="fa-solid fa-expand"></i></span>`
+                    }
+                    ${mediaCount > 1 ? `<span class="project-media-count-badge" title="${mediaCount} صور وفيديوهات"><i class="fa-solid fa-images"></i> ${mediaCount}</span>` : ''}
                 </div>
                 <div class="project-content">
                     ${category ? `<span class="project-category">${escapeHTML(category)}</span>` : ""}
@@ -596,22 +824,10 @@ async function loadProjectsFromBackend() {
         `;
     }).join("");
 
-// Replace grid content with DB data (keep header/footer/sections intact)
     grid.innerHTML = cardsHTML;
     grid.setAttribute("data-db-grid", "true");
 
-    // Re-wire video modal for dynamically added cards
-    document.querySelectorAll(".project-card--media").forEach((card) => {
-        card.addEventListener("click", () => {
-            const videoSrc = card.getAttribute("data-video");
-            if (videoSrc && window.videoModal && window.modalVideo) {
-                window.modalVideo.src = videoSrc;
-                window.videoModal.classList.add("active");
-                document.body.style.overflow = "hidden";
-                window.modalVideo.play().catch(() => {});
-            }
-        });
-    });
+    wireProjectCards();
 }
 
 function escapeHTML(str) {
