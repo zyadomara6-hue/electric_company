@@ -175,7 +175,7 @@ const translations = {
         hero_btn_contact: "تواصل معنا",
         hero_btn_services: "خدماتنا",
         about_title: "من نحن",
-about_subtitle: "مؤسسة عمارة للكهرباء والمقاولات",
+        about_subtitle: "مؤسسة عمارة للكهرباء والمقاولات",
         about_desc: "بخبرة تزيد عن 20 عامًا، نقدم جميع أعمال الكهرباء للمنازل والعمارات والمصانع والمنشآت التجارية، مع الالتزام بأعلى معايير الجودة والسلامة واستخدام أفضل الخامات لتنفيذ جميع المشروعات بكفاءة واحترافية.",
         about_btn_services: "خدماتنا",
         about_btn_contact: "تواصل معنا",
@@ -207,7 +207,7 @@ about_subtitle: "مؤسسة عمارة للكهرباء والمقاولات",
         project_placeholder: "صورة المشروع",
         project_1_title: "تأسيس كهرباء فيلا",
         project_1_desc: "تنفيذ جميع أعمال الكهرباء الخاصة بالفيلا بأعلى معايير الجودة.",
-project_2_title: "لوحة كهرباء مصنع",
+        project_2_title: "لوحة كهرباء مصنع",
         project_2_desc: "تركيب لوحة كهربائية كاملة مع جميع وسائل الحماية.",
         project_3_title: "عدادات الكهرباء",
         project_3_desc: "تركيب وصيانة العدادات مسبقة الدفع والعدادات الذكية.",
@@ -269,7 +269,7 @@ project_2_title: "لوحة كهرباء مصنع",
         filter_all: "الكل",
         footer_title: "مؤسسة عمارة للكهرباء والمقاولات",
         footer_desc: "نقدم حلولاً كهربائية متكاملة للمنازل والشركات والمصانع بأعلى معايير الجودة والأمان.",
-footer_whatsapp: "واتساب",
+        footer_whatsapp: "واتساب",
         footer_facebook: "فيسبوك",
         copyright: "© جميع الحقوق محفوظة | مؤسسة عمارة للكهرباء والمقاولات",
         lang_btn: "AR | EN"
@@ -286,7 +286,7 @@ footer_whatsapp: "واتساب",
         hero_btn_services: "Our Services",
         about_title: "About Us",
         about_subtitle: "Omara Electrical & Contracting",
-about_desc: "With over 20 years of experience, we handle all electrical work for homes, buildings, factories, and commercial facilities, using high-quality materials and professional standards.",
+        about_desc: "With over 20 years of experience, we handle all electrical work for homes, buildings, factories, and commercial facilities, using high-quality materials and professional standards.",
         about_btn_services: "Our Services",
         about_btn_contact: "Contact Us",
         services_cta: "Request your service now",
@@ -317,7 +317,7 @@ about_desc: "With over 20 years of experience, we handle all electrical work for
         project_placeholder: "Project Photo",
         project_1_title: "Villa Electrical Setup",
         project_1_desc: "Complete villa electrical works with top quality standards.",
-project_2_title: "Factory Electrical Panel",
+        project_2_title: "Factory Electrical Panel",
         project_2_desc: "Full electrical panel installation with all protection systems.",
         project_3_title: "Electricity Meters",
         project_3_desc: "Installation and maintenance of prepaid and smart meters.",
@@ -379,7 +379,7 @@ project_2_title: "Factory Electrical Panel",
         filter_all: "All",
         footer_title: "Omara Electrical & Contracting",
         footer_desc: "Complete electrical solutions for homes, businesses, and factories with top quality and safety.",
-footer_whatsapp: "WhatsApp",
+        footer_whatsapp: "WhatsApp",
         footer_facebook: "Facebook",
         copyright: "© All Rights Reserved | Omara Electrical & Contracting",
         lang_btn: "EN | AR"
@@ -416,7 +416,7 @@ function setLanguage(lang, save = true) {
         }
     });
 
-const langBtn = document.getElementById("langToggle");
+    const langBtn = document.getElementById("langToggle");
     if (langBtn) {
         langBtn.textContent = dict.lang_btn;
     }
@@ -1039,10 +1039,10 @@ function renderProjectsGrid(projects) {
             <div class="project-card ${isCoverVideo ? "project-card--media" : ""}" data-project-media="${mediaJsonStr}">
                 <div class="project-image project-image--shimmer">
                     ${isCoverVideo
-                        ? `<img src="images/project-4.svg" alt="" loading="lazy" decoding="async" onload="this.closest('.project-image').classList.remove('project-image--shimmer')" onerror="this.closest('.project-image').classList.remove('project-image--shimmer');this.src='images/project-4.svg'">
+                        ? `<img src="images/project-4.svg" alt="" loading="lazy" decoding="async" onload="this.closest('.project-image').classList.remove('project-image--shimmer')" onerror="this.onerror=null;this.closest('.project-image').classList.remove('project-image--shimmer')">
                            <span class="project-media-tag"><i class="fa-solid fa-video"></i> ${escapeHTML(videoLabel)}</span>
                            <span class="project-play-btn"><i class="fa-solid fa-play"></i></span>`
-                        : `<img src="${coverItem.url}" alt="${escapeHTML(title)}" loading="lazy" decoding="async" onload="this.closest('.project-image').classList.remove('project-image--shimmer')" onerror="this.closest('.project-image').classList.remove('project-image--shimmer');this.src='images/project-4.svg'">
+                        : `<img src="${coverItem.url}" alt="${escapeHTML(title)}" loading="lazy" decoding="async" onload="this.closest('.project-image').classList.remove('project-image--shimmer')" onerror="this.onerror=null;this.closest('.project-image').classList.remove('project-image--shimmer');this.src='images/project-4.svg'">
                            <span class="project-zoom-btn" title="تكبير ومعاينة"><i class="fa-solid fa-expand"></i></span>`
                     }
                     ${mediaCount > 1 ? `<span class="project-media-count-badge" title="${mediaCount} صور وفيديوهات"><i class="fa-solid fa-images"></i> ${mediaCount}</span>` : ""}
@@ -1070,8 +1070,8 @@ async function loadProjectsFromBackend() {
     const grid = document.querySelector(".projects-grid");
     if (!grid) return;
 
-    if (!window.appSupabase || !window.OmaraBackend) {
-        wireProjectCards();
+    if (!window.OmaraBackend) {
+        showProjectsError();
         return;
     }
 

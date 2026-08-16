@@ -18,7 +18,7 @@
     const projectForm = document.getElementById("projectForm");
     const projMsg = document.getElementById("projMsg");
 
-// ---------- Config check ----------
+    // ---------- Config check ----------
     function configReady() {
         if (!window.appSupabase) {
             loginError.textContent = "⚠️ لم يتم الاتصال بـ Supabase. تأكد من تحميل المكتبة وربط supabase-config.js ثم حدّث الصفحة.";
@@ -89,7 +89,6 @@
         });
     });
 
-// ---------- Projects CRUD ----------
     // ---------- Projects CRUD with Multi-Media Support ----------
     let editingId = null; // معرف المشروع الجاري تعديله (null = إضافة جديدة)
     let currentMediaList = []; // مصفوفة الوسائط الحالية: [{ id, url, previewUrl, type, file, isLocal }]
@@ -426,7 +425,7 @@
         }
     });
 
-// ---------- Leads ----------
+    // ---------- Leads ----------
     let allLeads = [];
     let currentLeadFilter = "all";
 
@@ -595,7 +594,7 @@
         return div.innerHTML;
     }
 
-// ---------- Init ----------
+    // ---------- Init ----------
     // ننتظر حتى تكتمل تهيئة Supabase (dynamic import) قبل فحص الجلسة
     if (window.supabaseReady) {
         window.supabaseReady(() => {

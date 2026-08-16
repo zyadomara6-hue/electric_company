@@ -6,9 +6,7 @@
 
 بعد تفعيل GitHub Pages هيبقى اللينك:
 
-`https://USERNAME.github.io/omara-electrical/`
-
-بدّل `USERNAME` باسم حسابك على GitHub.
+`https://zyadomara6-hue.github.io/electric_company/`
 
 ---
 
@@ -81,7 +79,7 @@
 
 ## 🖥️ استخدام لوحة التحكم
 
-- افتح `admin.html` (على الرابط: `https://USERNAME.github.io/omara-electrical/admin.html`)
+- افتح `admin.html` (على الرابط: `https://zyadomara6-hue.github.io/electric_company/admin.html`)
 - سجّل الدخول بالبريد وكلمة المرور اللي عملتهم في الخطوة 4
 - من اللوحة تقدر:
   - ➕ إضافة مشاريع جديدة (مع رفع صور/فيديوهات)
