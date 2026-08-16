@@ -66,7 +66,9 @@ async function fetchProjects() {
     if (!window.appSupabase && window.supabaseReady) {
         await new Promise((resolve) => window.supabaseReady(resolve));
     }
-    if (!window.appSupabase) return [];
+    if (!window.appSupabase) {
+        return { ok: false, data: [], error: "تعذر الاتصال بخدمة المشاريع." };
+    }
     try {
         const { data, error } = await window.appSupabase
             .from("projects")
@@ -74,10 +76,10 @@ async function fetchProjects() {
             .eq("status", "active")
             .order("sort_order", { ascending: true });
         if (error) throw error;
-        return data || [];
+        return { ok: true, data: data || [], error: null };
     } catch (e) {
         console.error("fetchProjects error:", e);
-        return [];
+        return { ok: false, data: [], error: "تعذر تحميل المشاريع حاليًا." };
     }
 }
 

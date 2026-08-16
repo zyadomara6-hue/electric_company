@@ -1,3 +1,8 @@
+/* Shared state for dynamic (Supabase-driven) projects — declared early so
+   any function referencing them is always safe regardless of call order. */
+let allLoadedProjects = [];
+let activeCategoryFilter = "all";
+
 AOS.init({
     duration: 1000,
     once: true
@@ -69,6 +74,54 @@ if (menuToggle && navLinks) {
         if (window.innerWidth > 992) {
             closeMobileMenu();
         }
+    });
+}
+
+/* ==========================
+   Smart Scroll-Adaptive Navbar
+   - Starts translucent + blurred (safe: it always sits over a dark
+     hero/page-hero at the top of every page).
+   - Becomes fully solid + shadow + compact once scrolled, which
+     guarantees readable contrast no matter what section is behind it.
+========================== */
+
+const navbarEl = document.querySelector(".navbar");
+const SCROLL_THRESHOLD = 40;
+let navbarScrollTicking = false;
+
+function updateNavbarScrollState() {
+    if (!navbarEl) return;
+    const scrolled = window.scrollY > SCROLL_THRESHOLD;
+    navbarEl.classList.toggle("is-scrolled", scrolled);
+    navbarScrollTicking = false;
+}
+
+function onNavbarScroll() {
+    if (!navbarScrollTicking) {
+        window.requestAnimationFrame(updateNavbarScrollState);
+        navbarScrollTicking = true;
+    }
+}
+
+if (navbarEl) {
+    updateNavbarScrollState(); // correct state on page-load if already scrolled (e.g. anchor link)
+    window.addEventListener("scroll", onNavbarScroll, { passive: true });
+}
+
+/* ==========================
+   Scroll-to-Top Button
+========================== */
+
+const scrollTopBtn = document.getElementById("scrollTopBtn");
+
+if (scrollTopBtn) {
+    window.addEventListener("scroll", () => {
+        scrollTopBtn.classList.toggle("visible", window.scrollY > 400);
+    }, { passive: true });
+
+    scrollTopBtn.addEventListener("click", () => {
+        const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        window.scrollTo({ top: 0, behavior: prefersReducedMotion ? "auto" : "smooth" });
     });
 }
 
@@ -208,6 +261,12 @@ project_2_title: "لوحة كهرباء مصنع",
         form_msg_details: "التفاصيل",
         form_error_required: "من فضلك املأ جميع الحقول المطلوبة.",
         form_error_phone: "رقم الهاتف غير صحيح. من فضلك أدخل رقم مصري صحيح (مثال: 01xxxxxxxxx).",
+        form_error_name: "من فضلك اكتب اسمك.",
+        form_success: "تم إرسال طلبك بنجاح ✅ سنتواصل معك في أقرب وقت.",
+        projects_error: "تعذر تحميل المشاريع حاليًا. يرجى المحاولة مرة أخرى بعد قليل.",
+        projects_retry: "إعادة المحاولة",
+        projects_empty: "لا توجد مشاريع لعرضها حاليًا.",
+        filter_all: "الكل",
         footer_title: "مؤسسة عمارة للكهرباء والمقاولات",
         footer_desc: "نقدم حلولاً كهربائية متكاملة للمنازل والشركات والمصانع بأعلى معايير الجودة والأمان.",
 footer_whatsapp: "واتساب",
@@ -312,6 +371,12 @@ project_2_title: "Factory Electrical Panel",
         form_msg_details: "Details",
         form_error_required: "Please fill in all required fields.",
         form_error_phone: "Invalid phone number. Please enter a valid Egyptian number (e.g., 01xxxxxxxxx).",
+        form_error_name: "Please enter your name.",
+        form_success: "Your request was sent successfully ✅ We'll contact you shortly.",
+        projects_error: "Couldn't load projects right now. Please try again shortly.",
+        projects_retry: "Retry",
+        projects_empty: "No projects to display right now.",
+        filter_all: "All",
         footer_title: "Omara Electrical & Contracting",
         footer_desc: "Complete electrical solutions for homes, businesses, and factories with top quality and safety.",
 footer_whatsapp: "WhatsApp",
@@ -358,13 +423,12 @@ const langBtn = document.getElementById("langToggle");
 
     updateCopyright();
 
-    // Re-render dynamic projects (from Supabase) in the new language.
-    // Only if the grid is currently DB-driven (data-db-grid is set).
-    if (window.OmaraBackend && window.appSupabase) {
-        const grid = document.querySelector(".projects-grid");
-        if (grid && grid.hasAttribute("data-db-grid")) {
-            loadProjectsFromBackend();
-        }
+    // Re-render dynamic projects (from Supabase) in the new language,
+    // using the already-cached list — no need to re-fetch from Supabase.
+    const grid = document.querySelector(".projects-grid");
+    if (grid && grid.hasAttribute("data-db-grid") && allLoadedProjects.length) {
+        renderProjectsFilters(allLoadedProjects);
+        renderProjectsGrid(allLoadedProjects);
     }
 }
 
@@ -420,6 +484,60 @@ if (whatsappForm) {
     const whatsappFormMsg = document.getElementById("whatsappFormMsg");
     const EGYPT_PHONE_REGEX = /^(?:\+?20|0)1[0125][0-9]{8}$/;
 
+    const nameInput = document.getElementById("clientName");
+    const phoneInput = document.getElementById("clientPhone");
+
+    function setFieldState(input, state) {
+        // state: "success" | "error" | null
+        if (!input) return;
+        const group = input.closest(".form-group");
+        if (!group) return;
+        group.classList.remove("form-group--success", "form-group--error");
+        if (state === "success") group.classList.add("form-group--success");
+        if (state === "error") group.classList.add("form-group--error");
+    }
+
+    function validateNameField(showState) {
+        const dict = translations[currentLang];
+        const value = nameInput.value.trim();
+        if (!value) {
+            if (showState) setFieldState(nameInput, "error");
+            return false;
+        }
+        if (showState) setFieldState(nameInput, "success");
+        return true;
+    }
+
+    function validatePhoneField(showState) {
+        const value = phoneInput.value.trim().replace(/[\s-]/g, "");
+        if (!EGYPT_PHONE_REGEX.test(value)) {
+            if (showState) setFieldState(phoneInput, "error");
+            return false;
+        }
+        if (showState) setFieldState(phoneInput, "success");
+        return true;
+    }
+
+    // Live validation — only after the user has actually interacted with the field
+    // (validate on blur, not before, so we don't shame an untouched form).
+    if (nameInput) {
+        nameInput.addEventListener("blur", () => validateNameField(true));
+        nameInput.addEventListener("input", () => {
+            if (nameInput.closest(".form-group")?.classList.contains("form-group--error")) {
+                validateNameField(true);
+            }
+        });
+    }
+
+    if (phoneInput) {
+        phoneInput.addEventListener("blur", () => validatePhoneField(true));
+        phoneInput.addEventListener("input", () => {
+            if (phoneInput.closest(".form-group")?.classList.contains("form-group--error")) {
+                validatePhoneField(true);
+            }
+        });
+    }
+
     whatsappForm.addEventListener("submit", (e) => {
         e.preventDefault();
 
@@ -431,10 +549,13 @@ if (whatsappForm) {
 
         if (whatsappFormMsg) {
             whatsappFormMsg.textContent = "";
-            whatsappFormMsg.classList.remove("form-msg--error");
+            whatsappFormMsg.classList.remove("form-msg--error", "form-msg--success");
         }
 
-        if (!name || !phone || !service || !message) {
+        const nameOk = validateNameField(true);
+        const phoneOk = validatePhoneField(true);
+
+        if (!nameOk || !phone || !service || !message) {
             if (whatsappFormMsg) {
                 whatsappFormMsg.textContent = dict.form_error_required;
                 whatsappFormMsg.classList.add("form-msg--error");
@@ -442,13 +563,16 @@ if (whatsappForm) {
             return;
         }
 
-        if (!EGYPT_PHONE_REGEX.test(phone.replace(/[\s-]/g, ""))) {
+        if (!phoneOk) {
             if (whatsappFormMsg) {
                 whatsappFormMsg.textContent = dict.form_error_phone;
                 whatsappFormMsg.classList.add("form-msg--error");
             }
             return;
         }
+
+        const submitBtn = whatsappForm.querySelector(".form-submit");
+        if (submitBtn) submitBtn.disabled = true;
 
         const serviceName = SERVICE_NAMES[service] ? SERVICE_NAMES[service][currentLang] : service;
 
@@ -461,12 +585,12 @@ if (whatsappForm) {
             `${dict.form_msg_details}: ${message}`
         ].join("\n");
 
-const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
+        const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
 
         // === Backend: save lead to Supabase (مع مهلة قصوى حتى لا يعلق) ===
         // الترتيب: حفظ البيانات ← فتح واتساب
         // ولو Supabase فشل أو أبطأ، واتساب يفضل يشتغل دائمًا.
-const saveLeadPromise = (window.OmaraBackend && window.appSupabase)
+        const saveLeadPromise = (window.OmaraBackend && window.appSupabase)
             ? window.OmaraBackend.saveLead({
                 name,
                 phone,
@@ -489,6 +613,17 @@ const saveLeadPromise = (window.OmaraBackend && window.appSupabase)
             .finally(() => {
                 // واتساب يتفتح دائمًا — سواء نجح الحفظ أو لا
                 window.open(url, "_blank");
+
+                if (whatsappFormMsg) {
+                    whatsappFormMsg.textContent = dict.form_success;
+                    whatsappFormMsg.classList.remove("form-msg--error");
+                    whatsappFormMsg.classList.add("form-msg--success");
+                }
+
+                whatsappForm.reset();
+                setFieldState(nameInput, null);
+                setFieldState(phoneInput, null);
+                if (submitBtn) submitBtn.disabled = false;
             });
     });
 }
@@ -761,24 +896,122 @@ wireProjectCards();
    Dynamic Projects (CMS)
 ========================== */
 
-async function loadProjectsFromBackend() {
+function getSkeletonCardsHTML(count) {
+    return Array.from({ length: count }).map(() => `
+        <div class="project-card project-skeleton" aria-hidden="true">
+            <div class="project-image project-skeleton__img"></div>
+            <div class="project-content">
+                <div class="project-skeleton__line project-skeleton__line--title"></div>
+                <div class="project-skeleton__line"></div>
+                <div class="project-skeleton__line project-skeleton__line--short"></div>
+            </div>
+        </div>
+    `).join("");
+}
+
+function showProjectsSkeleton() {
     const grid = document.querySelector(".projects-grid");
     if (!grid) return;
+    grid.innerHTML = getSkeletonCardsHTML(3);
+}
 
-    if (!window.appSupabase || !window.OmaraBackend) {
-        wireProjectCards();
+function showProjectsError(message) {
+    const grid = document.querySelector(".projects-grid");
+    if (!grid) return;
+    const dict = translations[currentLang] || translations.ar;
+    grid.innerHTML = `
+        <div class="projects-error-state">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <p>${escapeHTML(message || dict.projects_error)}</p>
+            <button type="button" class="projects-retry-btn" id="projectsRetryBtn">
+                <i class="fa-solid fa-rotate-right"></i> ${escapeHTML(dict.projects_retry)}
+            </button>
+        </div>
+    `;
+    const retryBtn = document.getElementById("projectsRetryBtn");
+    if (retryBtn) {
+        retryBtn.addEventListener("click", () => {
+            showProjectsSkeleton();
+            loadProjectsFromBackend();
+        });
+    }
+}
+
+function showProjectsEmpty() {
+    const grid = document.querySelector(".projects-grid");
+    if (!grid) return;
+    const dict = translations[currentLang] || translations.ar;
+    grid.innerHTML = `
+        <div class="projects-error-state">
+            <i class="fa-solid fa-folder-open"></i>
+            <p>${escapeHTML(dict.projects_empty)}</p>
+        </div>
+    `;
+}
+
+function getUniqueCategories(projects) {
+    const cats = [];
+    projects.forEach((p) => {
+        const c = (p.category || "").trim();
+        if (c && !cats.includes(c)) cats.push(c);
+    });
+    return cats;
+}
+
+function renderProjectsFilters(projects) {
+    let bar = document.getElementById("projectsFilters");
+    const wrapper = document.querySelector(".projects-carousel-wrapper");
+    const grid = document.querySelector(".projects-grid");
+    if (!wrapper || !grid) return;
+
+    const categories = getUniqueCategories(projects);
+
+    if (!categories.length) {
+        if (bar) bar.hidden = true;
         return;
     }
 
-    const projects = await window.OmaraBackend.fetchProjects();
-    if (!projects.length) {
-        wireProjectCards();
+    if (!bar) {
+        bar = document.createElement("div");
+        bar.id = "projectsFilters";
+        bar.className = "projects-filters";
+        wrapper.insertBefore(bar, grid);
+    }
+
+    bar.hidden = false;
+    const dict = translations[currentLang] || translations.ar;
+
+    bar.innerHTML = `
+        <button type="button" class="projects-filters__btn ${activeCategoryFilter === "all" ? "active" : ""}" data-cat="all">${escapeHTML(dict.filter_all)}</button>
+        ${categories.map((c) => `<button type="button" class="projects-filters__btn ${activeCategoryFilter === c ? "active" : ""}" data-cat="${escapeHTML(c)}">${escapeHTML(c)}</button>`).join("")}
+    `;
+
+    bar.querySelectorAll(".projects-filters__btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+            if (btn.getAttribute("data-cat") === activeCategoryFilter) return;
+            activeCategoryFilter = btn.getAttribute("data-cat");
+            renderProjectsFilters(allLoadedProjects);
+            renderProjectsGrid(allLoadedProjects);
+        });
+    });
+}
+
+function renderProjectsGrid(projects) {
+    const grid = document.querySelector(".projects-grid");
+    if (!grid) return;
+
+    const filtered = activeCategoryFilter === "all"
+        ? projects
+        : projects.filter((p) => (p.category || "").trim() === activeCategoryFilter);
+
+    if (!filtered.length) {
+        showProjectsEmpty();
         return;
     }
 
     const videoLabel = translations[currentLang]?.video_label || "فيديو";
 
-    const cardsHTML = projects.map((p) => {
+    const cardsHTML = filtered.map((p) => {
         const title = currentLang === "ar"
             ? (p.title || p.title_en || "")
             : (p.title_en || p.title || "");
@@ -789,7 +1022,6 @@ async function loadProjectsFromBackend() {
             ? (p.category || "")
             : "";
 
-        // Resolve media array
         let media = [];
         if (Array.isArray(p.media) && p.media.length) {
             media = p.media;
@@ -801,19 +1033,19 @@ async function loadProjectsFromBackend() {
         const coverItem = media[0] || { url: "images/project-4.svg", type: "image" };
         const isCoverVideo = coverItem.type === "video" || /\.(mp4|webm|ogg)(\?|$)/i.test(coverItem.url);
         const mediaCount = media.length;
-        const mediaJsonStr = JSON.stringify(media).replace(/"/g, '&quot;');
+        const mediaJsonStr = JSON.stringify(media).replace(/"/g, "&quot;");
 
         return `
             <div class="project-card ${isCoverVideo ? "project-card--media" : ""}" data-project-media="${mediaJsonStr}">
-                <div class="project-image">
+                <div class="project-image project-image--shimmer">
                     ${isCoverVideo
-                        ? `<img src="images/project-4.svg" alt="" loading="lazy">
+                        ? `<img src="images/project-4.svg" alt="" loading="lazy" decoding="async" onload="this.closest('.project-image').classList.remove('project-image--shimmer')" onerror="this.closest('.project-image').classList.remove('project-image--shimmer');this.src='images/project-4.svg'">
                            <span class="project-media-tag"><i class="fa-solid fa-video"></i> ${escapeHTML(videoLabel)}</span>
                            <span class="project-play-btn"><i class="fa-solid fa-play"></i></span>`
-                        : `<img src="${coverItem.url}" alt="${escapeHTML(title)}" loading="lazy">
+                        : `<img src="${coverItem.url}" alt="${escapeHTML(title)}" loading="lazy" decoding="async" onload="this.closest('.project-image').classList.remove('project-image--shimmer')" onerror="this.closest('.project-image').classList.remove('project-image--shimmer');this.src='images/project-4.svg'">
                            <span class="project-zoom-btn" title="تكبير ومعاينة"><i class="fa-solid fa-expand"></i></span>`
                     }
-                    ${mediaCount > 1 ? `<span class="project-media-count-badge" title="${mediaCount} صور وفيديوهات"><i class="fa-solid fa-images"></i> ${mediaCount}</span>` : ''}
+                    ${mediaCount > 1 ? `<span class="project-media-count-badge" title="${mediaCount} صور وفيديوهات"><i class="fa-solid fa-images"></i> ${mediaCount}</span>` : ""}
                 </div>
                 <div class="project-content">
                     ${category ? `<span class="project-category">${escapeHTML(category)}</span>` : ""}
@@ -824,10 +1056,42 @@ async function loadProjectsFromBackend() {
         `;
     }).join("");
 
-    grid.innerHTML = cardsHTML;
-    grid.setAttribute("data-db-grid", "true");
+    grid.classList.add("projects-grid--fading");
+    // Small fade for a smoother transition when switching filters/language
+    requestAnimationFrame(() => {
+        grid.innerHTML = cardsHTML;
+        grid.setAttribute("data-db-grid", "true");
+        wireProjectCards();
+        requestAnimationFrame(() => grid.classList.remove("projects-grid--fading"));
+    });
+}
 
-    wireProjectCards();
+async function loadProjectsFromBackend() {
+    const grid = document.querySelector(".projects-grid");
+    if (!grid) return;
+
+    if (!window.appSupabase || !window.OmaraBackend) {
+        wireProjectCards();
+        return;
+    }
+
+    const result = await window.OmaraBackend.fetchProjects();
+    const projects = (result && Array.isArray(result.data)) ? result.data : [];
+
+    if (!result || !result.ok) {
+        showProjectsError(result && result.error);
+        return;
+    }
+
+    allLoadedProjects = projects;
+
+    if (!projects.length) {
+        showProjectsEmpty();
+        return;
+    }
+
+    renderProjectsFilters(projects);
+    renderProjectsGrid(projects);
 }
 
 function escapeHTML(str) {
@@ -835,6 +1099,9 @@ function escapeHTML(str) {
     div.textContent = str || "";
     return div.innerHTML;
 }
+
+// Show skeleton immediately, then load real data
+showProjectsSkeleton();
 
 // Load dynamic projects after DOM ready
 if (document.readyState === "loading") {

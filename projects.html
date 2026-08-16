@@ -52,6 +52,18 @@
     }
     </script>
 
+    <!-- Structured Data: BreadcrumbList -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "الرئيسية", "item": "https://zyadomara6-hue.github.io/electric_company/index.html" },
+        { "@type": "ListItem", "position": 2, "name": "المشاريع", "item": "https://zyadomara6-hue.github.io/electric_company/projects.html" }
+      ]
+    }
+    </script>
+
 </head>
 
 <body>
@@ -107,6 +119,10 @@
 
     <div class="page-hero-content">
 
+        <nav class="breadcrumbs" aria-label="مسار التنقل">
+            <a href="index.html">الرئيسية</a><span aria-hidden="true">/</span><span aria-current="page">المشاريع</span>
+        </nav>
+
         <h1 data-i18n="projects_title">مشاريعنا</h1>
 
         <p data-i18n="projects_desc">
@@ -133,10 +149,32 @@
                 <span data-i18n="swipe_hint">اسحب لمشاهدة جميع المشاريع</span>
             </div>
 
+            <div id="projectsFilters" class="projects-filters" hidden></div>
+
             <div class="projects-grid" id="projectsGrid">
-                <div class="projects-loading-state">
-                    <div class="projects-loading-spinner"></div>
-                    <p data-i18n="projects_loading">جاري تحميل المشاريع...</p>
+                <div class="project-card project-skeleton" aria-hidden="true">
+                    <div class="project-image project-skeleton__img"></div>
+                    <div class="project-content">
+                        <div class="project-skeleton__line project-skeleton__line--title"></div>
+                        <div class="project-skeleton__line"></div>
+                        <div class="project-skeleton__line project-skeleton__line--short"></div>
+                    </div>
+                </div>
+                <div class="project-card project-skeleton" aria-hidden="true">
+                    <div class="project-image project-skeleton__img"></div>
+                    <div class="project-content">
+                        <div class="project-skeleton__line project-skeleton__line--title"></div>
+                        <div class="project-skeleton__line"></div>
+                        <div class="project-skeleton__line project-skeleton__line--short"></div>
+                    </div>
+                </div>
+                <div class="project-card project-skeleton" aria-hidden="true">
+                    <div class="project-image project-skeleton__img"></div>
+                    <div class="project-content">
+                        <div class="project-skeleton__line project-skeleton__line--title"></div>
+                        <div class="project-skeleton__line"></div>
+                        <div class="project-skeleton__line project-skeleton__line--short"></div>
+                    </div>
                 </div>
             </div>
 
@@ -224,6 +262,10 @@
     <i class="fa-brands fa-whatsapp"></i>
 
 </a>
+
+<button id="scrollTopBtn" class="scroll-top-btn" aria-label="الرجوع لأعلى" title="الرجوع لأعلى">
+    <i class="fa-solid fa-arrow-up"></i>
+</button>
 
 <!-- ==========================
      Lightbox Gallery Modal
