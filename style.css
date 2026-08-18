@@ -34,17 +34,20 @@ body{
     justify-content: space-between;
     align-items: center;
     gap: 16px;
-    padding: 20px 8%;
+    padding: 16px 32px;
     background: rgba(11, 31, 58, 0.72);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(1240px, 92%);
     z-index: 1000;
-    box-shadow: none;
-    transition: background .35s ease, padding .35s ease, box-shadow .35s ease, backdrop-filter .35s ease;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+    transition: background .35s ease, padding .35s ease, box-shadow .35s ease, backdrop-filter .35s ease, top .35s ease, width .35s ease;
 }
 
 /* Once the user scrolls, the navbar becomes fully solid + gets a shadow +
@@ -52,8 +55,9 @@ body{
    always safe regardless of what section is scrolling underneath it. */
 .navbar.is-scrolled{
     background: #0B1F3A;
-    padding: 12px 8%;
-    box-shadow: 0 4px 20px rgba(0,0,0,.25);
+    padding: 12px 30px;
+    top: 12px;
+    box-shadow: 0 12px 32px rgba(0,0,0,.28);
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
 }
@@ -264,26 +268,20 @@ body{
     text-decoration: none;
     font-size: 18px;
     font-weight: 600;
-    transition: 0.3s;
+    padding: 8px 18px;
+    border-radius: 999px;
+    transition: color 0.3s ease, background-color 0.3s ease;
 }
 
 .nav-links a:hover{
     color: #FFD700;
+    background: rgba(255, 215, 0, 0.08);
 }
 
 .nav-links a.active{
     color: #FFD700;
+    background: rgba(255, 215, 0, 0.14);
     position: relative;
-}
-
-.nav-links a.active::after{
-    content: "";
-    position: absolute;
-    bottom: -6px;
-    right: 0;
-    width: 100%;
-    height: 2px;
-    background: #FFD700;
 }
 
 /* ==========================
@@ -2476,16 +2474,18 @@ html{
     .nav-links{
         display:none;
         position:absolute;
-        top:100%;
+        top:calc(100% + 12px);
         right:0;
         left:0;
         width:100%;
         background:#0B1F3A;
         flex-direction:column;
         text-align:center;
-        padding:18px 0;
+        padding:14px 12px;
         gap:4px;
-        box-shadow:0 12px 28px rgba(0,0,0,.22);
+        border-radius:26px;
+        border:1px solid rgba(255,255,255,0.08);
+        box-shadow:0 16px 34px rgba(0,0,0,.28);
         transform-origin:top center;
     }
 
@@ -3007,6 +3007,33 @@ html{
 
     .copyright{
         font-size:13px;
+    }
+}
+
+/* ==========================
+   Mobile Rounded / Floating Navbar
+   - Mobile-only (<=768px) refinement on top of the desktop floating navbar.
+   - Uses small side/top margins + a moderate border-radius instead of the
+     desktop's full pill shape. Background, blur, shadow and colors are all
+     inherited unchanged from the base .navbar / .navbar.is-scrolled rules.
+========================== */
+@media (max-width: 768px){
+    .navbar{
+        left: 12px;
+        right: 12px;
+        top: 12px;
+        width: auto;
+        transform: none;
+        border-radius: 22px;
+    }
+
+    .navbar.is-scrolled{
+        top: 12px;
+    }
+
+    .nav-links{
+        top: calc(100% + 10px);
+        border-radius: 18px;
     }
 }
 

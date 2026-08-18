@@ -4,7 +4,7 @@ let allLoadedProjects = [];
 let activeCategoryFilter = "all";
 
 AOS.init({
-    duration: 1000,
+    duration: 450,
     once: true
 });
 
@@ -587,9 +587,10 @@ if (whatsappForm) {
 
         const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
 
-        // === Backend: save lead to Supabase (مع مهلة قصوى حتى لا يعلق) ===
-        // الترتيب: حفظ البيانات ← فتح واتساب
-        // ولو Supabase فشل أو أبطأ، واتساب يفضل يشتغل دائمًا.
+        // افتح واتساب أثناء click gesture حتى لا يمنع المتصفح نافذة جديدة.
+        window.open(url, "_blank", "noopener,noreferrer");
+
+        // احفظ بيانات العميل في الخلفية بدون تعطيل فتح واتساب.
         const saveLeadPromise = (window.OmaraBackend && window.appSupabase)
             ? window.OmaraBackend.saveLead({
                 name,
@@ -611,9 +612,6 @@ if (whatsappForm) {
             })
             .catch((err) => console.warn("Lead not saved:", err))
             .finally(() => {
-                // واتساب يتفتح دائمًا — سواء نجح الحفظ أو لا
-                window.open(url, "_blank");
-
                 if (whatsappFormMsg) {
                     whatsappFormMsg.textContent = dict.form_success;
                     whatsappFormMsg.classList.remove("form-msg--error");

@@ -10,3 +10,7 @@ Disallow: /supabase-config.js
 Disallow: /backend.js
 
 Sitemap: https://zyadomara6-hue.github.io/electric_company/sitemap.xml
+
+
+
+
