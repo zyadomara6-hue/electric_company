@@ -709,33 +709,44 @@ body{
 }
 
 .btn-primary{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
     background:#FFD700;
     color:#0B1F3A;
     padding:15px 35px;
     text-decoration:none;
-    border-radius:8px;
+    border-radius:999px;
     font-size:18px;
     font-weight:bold;
-    transition:.3s;
+    transition:background .25s ease, transform .25s ease, box-shadow .25s ease;
 }
 
 .btn-primary:hover{
     background:white;
+    transform:translateY(-2px);
+    box-shadow:0 8px 24px rgba(255,215,0,.4);
 }
 
 .btn-secondary{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
     border:2px solid #FFD700;
     color:white;
     padding:15px 35px;
     text-decoration:none;
-    border-radius:8px;
+    border-radius:999px;
     font-size:18px;
-    transition:.3s;
+    transition:background .25s ease, color .25s ease, transform .25s ease;
 }
 
 .btn-secondary:hover{
     background:#FFD700;
     color:#0B1F3A;
+    transform:translateY(-2px);
 }
 
 /* ==========================
@@ -3415,3 +3426,104 @@ body.dark-mode .projects-filters__btn.active{
     color:var(--secondary-color);
     font-weight:700;
 }
+
+/* ==========================
+   Hero Trust Badge (تصميم Figma الجديد)
+========================== */
+
+.hero-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    background:rgba(255,215,0,.14);
+    border:1px solid rgba(255,215,0,.4);
+    border-radius:999px;
+    padding:7px 18px;
+    margin-bottom:22px;
+    position:relative;
+    z-index:3;
+}
+
+.hero-badge i{
+    color:var(--secondary-color);
+    font-size:14px;
+}
+
+.hero-badge span{
+    color:var(--secondary-color);
+    font-size:13px;
+    font-weight:700;
+    letter-spacing:.02em;
+}
+
+@media (max-width:480px){
+    .hero-badge{
+        padding:6px 14px;
+        margin-bottom:16px;
+    }
+    .hero-badge span{
+        font-size:11px;
+    }
+}
+
+/* ==========================
+   Stats Strip (تصميم Figma الجديد)
+========================== */
+
+.stats-strip{
+    background:var(--primary-color);
+    padding:40px 5%;
+}
+
+.grid-stats{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:16px;
+    max-width:1100px;
+    margin:0 auto;
+}
+
+.stat-card{
+    background:rgba(255,215,0,.08);
+    border:1px solid rgba(255,215,0,.2);
+    border-radius:14px;
+    padding:20px 16px;
+    text-align:center;
+    transition:background .3s ease, transform .3s ease;
+}
+
+.stat-card:hover{
+    background:rgba(255,215,0,.14);
+    transform:translateY(-4px);
+}
+
+.stat-card i{
+    color:var(--secondary-color);
+    font-size:26px;
+    margin-bottom:10px;
+    display:block;
+}
+
+.stat-card strong{
+    display:block;
+    font-size:clamp(22px,4vw,34px);
+    font-weight:900;
+    color:var(--secondary-color);
+    line-height:1;
+}
+
+.stat-card span{
+    display:block;
+    font-size:clamp(12px,1.5vw,14px);
+    color:rgba(255,255,255,.78);
+    margin-top:6px;
+    font-weight:600;
+}
+
+@media (max-width:640px){
+    .grid-stats{
+        grid-template-columns:repeat(2,1fr);
+    }
+}
+
+

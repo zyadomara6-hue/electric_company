@@ -174,6 +174,11 @@ const translations = {
         hero_desc: "نقدم حلولاً كهربائية متكاملة للمنازل والشركات والمصانع، مع الالتزام بأعلى معايير الجودة والأمان وسرعة التنفيذ.",
         hero_btn_contact: "تواصل معنا",
         hero_btn_services: "خدماتنا",
+        hero_badge: "أكثر من 20 عامًا من الخبرة والثقة",
+        stat_1_num: "+500", stat_1_label: "مشروع منجز",
+        stat_2_num: "+20", stat_2_label: "عامًا من الخبرة",
+        stat_3_num: "100%", stat_3_label: "ضمان الجودة",
+        stat_4_num: "24/7", stat_4_label: "دعم ومتابعة",
         about_title: "من نحن",
 about_subtitle: "مؤسسة عمارة للكهرباء والمقاولات",
         about_desc: "بخبرة تزيد عن 20 عامًا، نقدم جميع أعمال الكهرباء للمنازل والعمارات والمصانع والمنشآت التجارية، مع الالتزام بأعلى معايير الجودة والسلامة واستخدام أفضل الخامات لتنفيذ جميع المشروعات بكفاءة واحترافية.",
@@ -284,6 +289,11 @@ footer_whatsapp: "واتساب",
         hero_desc: "We provide complete electrical solutions for homes, businesses, and factories, with top quality, safety, and fast delivery.",
         hero_btn_contact: "Contact Us",
         hero_btn_services: "Our Services",
+        hero_badge: "Over 20 Years of Experience & Trust",
+        stat_1_num: "500+", stat_1_label: "Projects Done",
+        stat_2_num: "20+", stat_2_label: "Years Experience",
+        stat_3_num: "100%", stat_3_label: "Quality Guarantee",
+        stat_4_num: "24/7", stat_4_label: "Support",
         about_title: "About Us",
         about_subtitle: "Omara Electrical & Contracting",
 about_desc: "With over 20 years of experience, we handle all electrical work for homes, buildings, factories, and commercial facilities, using high-quality materials and professional standards.",
@@ -1031,7 +1041,11 @@ function renderProjectsGrid(projects) {
         const coverItem = media[0] || { url: "images/project-4.svg", type: "image" };
         const isCoverVideo = coverItem.type === "video" || /\.(mp4|webm|ogg)(\?|$)/i.test(coverItem.url);
         const mediaCount = media.length;
-        const mediaJsonStr = JSON.stringify(media).replace(/"/g, "&quot;");
+        const mediaJsonStr = JSON.stringify(media)
+            .replace(/&/g, "&amp;")
+            .replace(/"/g, "&quot;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;");
 
         return `
             <div class="project-card ${isCoverVideo ? "project-card--media" : ""}" data-project-media="${mediaJsonStr}">

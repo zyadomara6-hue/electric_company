@@ -257,8 +257,8 @@
                     ${count > 1 ? `<span class="project-admin-mediacount" title="${count} صور وفيديوهات"><i class="fa-solid fa-photo-film"></i> ${count}</span>` : ''}
                 </div>
                 <div class="project-admin-info">
-                    <strong>${p.title || ""}</strong>
-                    <span>${p.title_en || ""}</span>
+                    <strong>${escapeHtml(p.title || "")}</strong>
+                    <span>${escapeHtml(p.title_en || "")}</span>
                     <div class="project-admin-meta">
                         ${p.category ? `<span class="project-admin-category">${escapeHtml(p.category)}</span>` : ""}
                         ${count > 1 ? `<span class="project-admin-tag-media">${count} وسائط</span>` : ""}
@@ -453,6 +453,18 @@
             : { tag: "طلب فورم", cls: "lead-type--form", icon: "fa-solid fa-file-lines" };
     }
 
+    // يسمح فقط بروابط واتساب حقيقية (https + wa.me أو api.whatsapp.com).
+    // أي قيمة تانية (زي javascript: أو أي scheme غريب) بترفض تمامًا
+    // حتى لو مرت بـ escapeHtml — الحماية هنا من نوع الرابط نفسه مش بس من كسر الـ HTML.
+    function safeWaLink(url) {
+        if (typeof url !== "string") return null;
+        const trimmed = url.trim();
+        if (/^https:\/\/(wa\.me|api\.whatsapp\.com)\//i.test(trimmed)) {
+            return trimmed;
+        }
+        return null;
+    }
+
     function pageSourceLabel(src) {
         if (!src) return "غير معروف";
         const names = {
@@ -527,12 +539,26 @@
                     ${l.phone ? `<p><i class="fa-solid fa-phone"></i> ${escapeHtml(l.phone)}</p>` : ""}
                     ${l.service ? `<p><i class="fa-solid fa-tag"></i> ${escapeHtml(serviceLabel(l.service))}</p>` : ""}
                     ${l.page_source ? `<p class="lead-source"><i class="fa-solid fa-location-crosshairs"></i> المصدر: ${escapeHtml(pageSourceLabel(l.page_source))}</p>` : ""}
-                    ${l.wa_link ? `<p class="lead-walink"><i class="fa-brands fa-whatsapp"></i> <a href="${escapeHtml(l.wa_link)}" target="_blank" rel="noopener">${escapeHtml(l.wa_link)}</a></p>` : ""}
+                    ${l.wa_link ? (() => {
+                        const safeLink = safeWaLink(l.wa_link);
+                        return safeLink
+                            ? `<p class="lead-walink"><i class="fa-brands fa-whatsapp"></i> <a href="${escapeHtml(safeLink)}" target="_blank" rel="noopener noreferrer">${escapeHtml(safeLink)}</a></p>`
+                            : `<p class="lead-walink"><i class="fa-solid fa-triangle-exclamation"></i> رابط غير صالح: ${escapeHtml(l.wa_link)}</p>`;
+                    })() : ""}
                     ${l.message ? `<p class="lead-msg">${escapeHtml(l.message)}</p>` : ""}
                 </div>
             </div>
         `;
         }).join("");
+    }
+
+    // ---------- CSV injection guard ----------
+    // إكسل/جوجل شيتس بيفسّروا أي خلية تبدأ بـ = أو + أو - أو @ كصيغة (formula)
+    // فلو رسالة عميل خبيثة بدأت بيهم، ممكن تتنفذ كأمر لما الأدمن يفتح ملف الإكسبورت.
+    // الحل: نضيف علامة اقتباس بسيطة (') قبل أي قيمة بتبدأ برموز الصيغ دي.
+    function csvSafe(value) {
+        const str = String(value == null ? "" : value);
+        return /^[=+\-@\t\r]/.test(str) ? `'${str}` : str;
     }
 
     // ---------- Export Leads to CSV (Excel) ----------
@@ -544,14 +570,14 @@
 
         const headers = ["التاريخ", "نوع التواصل", "الاسم", "رقم الهاتف", "الخدمة", "المصدر", "رابط واتساب", "الرسالة"];
         const rows = allLeads.map((l) => [
-            `"${new Date(l.created_at).toLocaleString("ar-EG")}"`,
-            `"${l.contact_type === "whatsapp" ? "تواصل واتساب" : "طلب فورم"}"`,
-            `"${(l.name || "").replace(/"/g, '""')}"`,
-            `"${(l.phone || "").replace(/"/g, '""')}"`,
-            `"${serviceLabel(l.service)}"`,
-            `"${pageSourceLabel(l.page_source)}"`,
-            `"${(l.wa_link || "").replace(/"/g, '""')}"`,
-            `"${(l.message || "").replace(/"/g, '""')}"`
+            `"${csvSafe(new Date(l.created_at).toLocaleString("ar-EG")).replace(/"/g, '""')}"`,
+            `"${csvSafe(l.contact_type === "whatsapp" ? "تواصل واتساب" : "طلب فورم").replace(/"/g, '""')}"`,
+            `"${csvSafe(l.name || "").replace(/"/g, '""')}"`,
+            `"${csvSafe(l.phone || "").replace(/"/g, '""')}"`,
+            `"${csvSafe(serviceLabel(l.service)).replace(/"/g, '""')}"`,
+            `"${csvSafe(pageSourceLabel(l.page_source)).replace(/"/g, '""')}"`,
+            `"${csvSafe(l.wa_link || "").replace(/"/g, '""')}"`,
+            `"${csvSafe(l.message || "").replace(/"/g, '""')}"`
         ]);
 
         // UTF-8 BOM (\uFEFF) for Arabic display in Excel
