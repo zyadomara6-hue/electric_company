@@ -32,8 +32,6 @@ alter table public.leads alter column phone drop not null;
 create index if not exists idx_leads_contact_type on public.leads (contact_type);
 create index if not exists idx_leads_created_at on public.leads (created_at desc);
 
--- ✅ لا حاجة لتغيير سياسات RLS — القائمة الحالية تكفي:
---    anon:     insert فقط (يحفظ البيانات)
---    authenticated (الأدمن): select فقط (يقرأ في لوحة التحكم)
---    لا أحد يقرأ بيانات العملاء من الخارج. الأمان كما هو.
+-- سياسات القراءة/الحذف للأدمن ليست عبر authenticated وحدها.
+-- نفّذ admin-security-fix.sql لتفعيل is_admin() على جدول leads.
 -- ============================================================

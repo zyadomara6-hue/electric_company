@@ -28,14 +28,37 @@
     }
 
     // ---------- Auth ----------
+    // فحص الصلاحية عبر RPC is_admin() فقط — جدول admin_users مقفول عن العملاء.
+    async function isAdminUser() {
+        try {
+            const { data, error } = await sb().rpc("is_admin");
+            return !error && data === true;
+        } catch (e) {
+            console.error("isAdminUser error:", e);
+            return false;
+        }
+    }
+
+    async function enterAdminIfAllowed() {
+        const allowed = await isAdminUser();
+        if (!allowed) {
+            await sb().auth.signOut();
+            showLogin();
+            loginError.textContent = "هذا الحساب غير مصرّح له كمسؤول. تأكد من تنفيذ admin-security-fix.sql وإضافة user_id في جدول admin_users.";
+            return false;
+        }
+        showPanel();
+        loadProjects();
+        loadLeads();
+        return true;
+    }
+
     async function checkSession() {
         if (!configReady()) return;
         try {
             const { data: { session } } = await sb().auth.getSession();
             if (session) {
-                showPanel();
-                loadProjects();
-                loadLeads();
+                await enterAdminIfAllowed();
             } else {
                 showLogin();
             }
@@ -56,9 +79,7 @@
         if (error) {
             loginError.textContent = error.message;
         } else {
-            showPanel();
-            loadProjects();
-            loadLeads();
+            await enterAdminIfAllowed();
         }
     });
 
